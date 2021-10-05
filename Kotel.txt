@@ -1,0 +1,10 @@
+# Connect
+open ftp://F6:1953@F7/ 
+# Change remote directory
+cd /
+# Download file to the local directory d:\Libraries\Plot\Logs\
+get *>=%%TIMESTAMP#yyyy-mm-dd%% d:\Libraries\Plot\Logs\
+# Disconnect
+close
+# Exit WinSCP
+exit
