@@ -152,8 +152,8 @@ plot today_date\
 '' using 1:($8+5):xtic(substr(stringcolumn(2),0,5))  every 10 ti "Вулиця" ls 7,\
 '' every etvmn:etvmn using 1:($8+4):(LabelNameWT(substr(stringcolumn(8),1,4))) w labels tc ls 4 center offset 3,0,\
 \
-'' every 5:5 using 1:(($3-$8)+14) ti "РізницяБО-Вулиця" ls 3,\
-'' every etvmn:etvmn using 1:(($3-$8)+14):(LabelNameDiffW((substr(stringcolumn(3),1,4)),(substr(stringcolumn(8),1,4)))) w labels tc ls 4 center offset 0,-1,\
+'' every 5:5 using 1:(($3-$8))/2 ti "РізницяБО-Вулиця" ls 3,\
+'' every etvmn:etvmn using 1:(($3-$8))/2:(LabelNameDiffW((substr(stringcolumn(3),1,4)),(substr(stringcolumn(8),1,4)))) w labels tc ls 4 center offset 0,-1,\
 \
    55 ls 7,64 ls 7
 
