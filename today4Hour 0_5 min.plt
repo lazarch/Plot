@@ -55,7 +55,7 @@ set style line 3 lc rgb 'dark-red'    lt 2 lw 3 pt 0 ps 1        ## ДомОбр
 set style line 4 lc rgb 'red'         lt 2 lw 3 pt 0 ps 1        ## КотелПодача red
 set style line 5 lc rgb 'dark-violet'        lt 2 lw 2 pt 0 ps 1        ## КотелОбратка blue
 set style line 6 lc rgb 'sea-green'   lt 2 lw 3 pt 0 ps 1        ## ДомОбратка dark-blue
-set style line 7 lc rgb 'orange'      lt 1 lw 1 pt 0 ps 1        ## НаружнаяТемпература blue
+set style line 7 lc rgb 'blue'      lt 1 lw 1 pt 0 ps 1        ## НаружнаяТемпература blue
 
 set xtics  norangelimit 
 set xtics rotate by -90
@@ -131,7 +131,7 @@ plot today_date\
    using 1:4 ti "КотелПодача" ls 4,\
 '' every etvmn:etvmn using 1:4:(LabelNameKP(substr(stringcolumn(4),1,4))) w labels tc ls 1 center offset 3,1,\
 \
-'' using 1:($5) ti "КотелОбратка" ls 3,\
+'' using 1:($5) ti "КотелОбратка" ls 5,\
 '' every etvmn:etvmn using 1:($5):(LabelNameKO(substr(stringcolumn(5),1,4))) w labels tc ls 3 center offset 3,-1,\
 \
 '' every 5:5 using 1:($4-$5)+50 ti "РізницяКотел" ls 2,\
@@ -140,7 +140,7 @@ plot today_date\
 '' using 1:($7) ti "ДомПодача " ls 4,\
 '' every etvmn:etvmn using 1:($7):(LabelNameDP(substr(stringcolumn(7),1,4))) w labels tc ls 5 center offset -3,1,\
 \
-'' using 1:($3) ti "ДомОбратка" ls 6,\
+'' using 1:($3) ti "ДомОбратка" ls 5,\
 '' every etvmn:etvmn using 1:($3):(LabelNameDO(substr(stringcolumn(3),1,4))) w labels tc ls 6 center offset -3,-1,\
 \
 '' every 5:5 using 1:($7-$3)+48 ti "РізницяБудинок" ls 1,\
