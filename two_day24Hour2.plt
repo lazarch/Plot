@@ -1,25 +1,24 @@
 # тут вставлено рядок для виводу графіку в BASH скрипті в командному рядку
 #!D:\PORTABLE\gnuplot\bin\wgnuplot
 # тут вставлено рядок для виводу графіку в BASH скрипті в командному рядку
+
 reset 
 set encoding utf8
 
 pa_ = 120  ## значення паузи в оновленні графіку
 
-do for [c_p = 0 : 160: 1]{
+
 local_time=time(0.0)+(3*3600) ## місцевий час, час на Який показуємо графік
 cycle = 1
 # константа, що додає до UTC 2 чи 3 години, для вірного відображення дати файлу
 # (2*3600), для літнього часу множник 3, для зимового 2, і ще у 85 рядку потрібно міняти !!!
-
-local_time=time(0.0)+(3*3600) ## місцевий час, час на Який показуємо графік
 #для показу вчорашнього графіку
 local_time_file=local_time-24*60*60
 
 system(sprintf("c:\\TCPU72\\Programm\\Winscp\\winscp.com /ini=nul /script=Kotel.txt"))
 unset term
-set terminal win 3
-wtitle = strftime("Yesterday with 00H %d %m %Y %H:%M:%S",local_time_file).' time '.strftime("%H:%M:%S",local_time).' pause = ' .pa_. 'c. cycle N '.c_p
+set terminal win 1
+wtitle = strftime("with 00 hour %d %m %Y %H:%M:%S",local_time).' time '.strftime("%H:%M:%S",local_time).' pause = ' .pa_. 'c. cycle N '
 
 set term windows font "Times,8" title wtitle size 2200,800 enhanced
 set boxwidth 0.3 absolute
@@ -33,7 +32,7 @@ set key opaque
 set key outside above 
 set pointsize 2
 #назва графіку
-set title "yesterday24Hour.plt" 
+set title "today24Hour 2 min.plt" 
 set style fill   solid 1.00 border lt -1
 set style data linespoints
 set style textbox opaque margins  1.0,  1.0 border
@@ -76,10 +75,10 @@ set datafile sep ','
 # далі константа, що додає до UTC дві години, для вірного відображення дати файлу
 # t0=(2*3600) я просто додаю число до часу і формую імя файлу, інакше у мене після дванадцятої ночі
 # відображався старий файл і лише після другої показувався новий, для літнього часу множник 3, для зимового 2
+
 today_date='d:\Libraries\Plot\Logs\'.strftime("%Y%m%d",local_time).'.log'
-yesterday_date='d:\Libraries\Plot\Logs\'.strftime("%Y%m%d",local_time_file).'.log'
-#today_date='https://drive.google.com/open?id=1pMnPYVmI4-gAruL2d0vSOf2vyKEjRw37'
-set xlabel "Графік  ".strftime("%d.%m.%Y,%H:%M:%S",local_time_file)
+#today_date= 'https://drive.google.com/open?id=1pMnPYVmI4-gAruL2d0vSOf2vyKEjRw37'
+set xlabel "Графік  ".strftime("%d.%m.%Y,%H:%M:%S",local_time)
 #вставляю к п перед даними по температурі подачі котла
 LabelNameKP(String) = sprintf("{%s} кп", String)
 LabelNameDP(String) = sprintf("дп:{%s}", String)
@@ -96,16 +95,17 @@ set xtics rotate by -90
 
 set xdata time
 set timefmt "%d.%m.%Y,%H:%M:%S"
-timestart = strftime("%d.%m.%Y,00:00:00",local_time_file) ## початок доби
-timeend =  strftime("%d.%m.%Y,23:59:59",local_time_file)
-delta = timeend - timestart
+
+local_time_start=local_time-2*24*60*60
+timestart = strftime("%d.%m.%Y,00:00:00",local_time_start) ## початок доби
+timeend =  strftime("%d.%m.%Y,%H:%M:%S",local_time)
 etvmx = 75
 etvmn = 50
 set xrange [timestart:timeend]
+#set xrange ["07.10.2021,00:00:00":"09.10.2021,14:00:00"]
 # time range must be in same format as data file
-# лише для довідки:    set xrange ["06.02.2016,06:00:00":"06.02.2016,08:00:00"]
-# set format x "%H:%M"
-set format x "%H"
+# лише для довідки:    set xrange ["07.10.2021,00:00:00":"09.10.2021,14:00:00"]
+set format x "%H:%M"
 set timefmt "%d.%m.%Y,%H:%M"
 #**********************************************
 #	1			2	 3до	 4кп	 5ко	 6прим  7дп     8в		 9
@@ -129,8 +129,16 @@ set timefmt "%d.%m.%Y,%H:%M"
 # утеплення датчиків і труб надзвичайно ефективне!
 #
 
-plot today_date\
-   using 1:4 ti "КотелПодача" ls 4,\
+#[status, list] = system('dir /b /s *.log')
+#result = textscan( list, '%s', 'delimiter', '\n' )
+#print list
+#pause mouse any "Any key or button will terminate".list
+#for [file in list] file\
+#   using 1:4 ti "КотелПодача" ls 4,\
+
+list = "20211007 20211008 20211009"
+pause mouse any "Any key or button will terminate".list.timestart
+plot for [i in list] i.".log" using 1:4 ti "КотелПодача" ls 4,\
 '' every etvmn:etvmn using 1:4:(LabelNameKP(substr(stringcolumn(4),1,4))) w labels tc ls 1 center offset 3,1,\
 \
 '' using 1:($5) ti "КотелОбратка" ls 3,\
@@ -154,38 +162,8 @@ plot today_date\
 '' using 1:($8+5):xtic(substr(stringcolumn(2),0,5))  every 10 ti "Вулиця" ls 7,\
 '' every etvmn:etvmn using 1:($8+4):(LabelNameWT(substr(stringcolumn(8),1,4))) w labels tc ls 4 center offset 3,0,\
 \
-'' every 5:5 using 1:(($3-$8)+14) ti "РізницяБО-Вулиця" ls 3,\
-'' every etvmn:etvmn using 1:(($3-$8)+14):(LabelNameDiffW((substr(stringcolumn(3),1,4)),(substr(stringcolumn(8),1,4)))) w labels tc ls 4 center offset 0,-1,\
-\
-   55 ls 7,64 ls 7
-   
- plot  yesterday_date\
-   using 1:4 ti "КотелПодача" ls 4,\
-'' every etvmn:etvmn using 1:4:(LabelNameKP(substr(stringcolumn(4),1,4))) w labels tc ls 1 center offset 3,1,\
-\
-'' using 1:($5) ti "КотелОбратка" ls 3,\
-'' every etvmn:etvmn using 1:($5):(LabelNameKO(substr(stringcolumn(5),1,4))) w labels tc ls 3 center offset 3,-1,\
-\
-'' every 5:5 using 1:($4-$5)+50 ti "РізницяКотел" ls 2,\
-'' every etvmn:etvmn using 1:($4-$5)+50:(LabelNameDiffK((substr(stringcolumn(4),1,4)),(substr(stringcolumn(5),1,4)))) w labels tc ls 4 center offset 0,-1,\
-\
-'' using 1:($7) ti "ДомПодача " ls 4,\
-'' every etvmn:etvmn using 1:($7):(LabelNameDP(substr(stringcolumn(7),1,4))) w labels tc ls 5 center offset -3,1,\
-\
-'' using 1:($3) ti "ДомОбратка" ls 6,\
-'' every etvmn:etvmn using 1:($3):(LabelNameDO(substr(stringcolumn(3),1,4))) w labels tc ls 6 center offset -3,-1,\
-\
-'' every 5:5 using 1:($7-$3)+48 ti "РізницяБудинок" ls 1,\
-'' every etvmn:etvmn using 1:($7-$3)+48:(LabelNameDiffD((substr(stringcolumn(7),1,4)),(substr(stringcolumn(3),1,4)))) w labels tc ls 6 center offset 0,-1,\
-\
-'' using 1:($6) ti "Приміщення" ls 3,\
-'' every etvmn:etvmn using 1:($6):(LabelNamePK(substr(stringcolumn(6),1,4))) w labels tc ls 2 center offset -3,1,\
-\
-'' using 1:($8+5):xtic(substr(stringcolumn(2),0,5))  every 10 ti "Вулиця" ls 7,\
-'' every etvmn:etvmn using 1:($8+4):(LabelNameWT(substr(stringcolumn(8),1,4))) w labels tc ls 4 center offset 3,0,\
-\
-'' every 5:5 using 1:(($3-$8)+14) ti "РізницяБО-Вулиця" ls 3,\
-'' every etvmn:etvmn using 1:(($3-$8)+14):(LabelNameDiffW((substr(stringcolumn(3),1,4)),(substr(stringcolumn(8),1,4)))) w labels tc ls 4 center offset 0,-1,\
+'' every 5:5 using 1:(($3-$8))/2 ti "РізницяБО-Вулиця" ls 1,\
+'' every etvmn:etvmn using 1:(($3-$8))/2:(LabelNameDiffW((substr(stringcolumn(3),1,4)),(substr(stringcolumn(8),1,4)))) w labels tc ls 4 center offset 0,-1,\
 \
    55 ls 7,64 ls 7
 
@@ -200,5 +178,5 @@ unset key
 unset label
 unset arrow
 unset term
-}
+
 #
