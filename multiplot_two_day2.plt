@@ -59,6 +59,7 @@ set style line 7 lc rgb 'orange'      lt 1 lw 1 pt 0 ps 1        ## Наружн
 set xtics  norangelimit 
 set xtics rotate by -90
 set ytics auto
+set ytics auto
 set ytics add ("25" 25, "28" 28, "34" 34, "55" 55, "62" 62, "64" 64, "70" 70)
 set autoscale keepfix
 
@@ -76,7 +77,9 @@ set datafile sep ','
 # t0=(2*3600) я просто додаю число до часу і формую імя файлу, інакше у мене після дванадцятої ночі
 # відображався старий файл і лише після другої показувався новий, для літнього часу множник 3, для зимового 2
 
-today_date='d:\Libraries\Plot\Logs\'.strftime("%Y%m%d",local_time).'.log'
+today_date=' d:\Libraries\Plot\Logs\'.strftime("%Y%m%d",local_time)
+today_date1=' d:\Libraries\Plot\Logs\'.strftime("%Y%m%d",local_time-24*60*60)
+today_date2=' d:\Libraries\Plot\Logs\'.strftime("%Y%m%d",local_time-2*24*60*60)
 #today_date= 'https://drive.google.com/open?id=1pMnPYVmI4-gAruL2d0vSOf2vyKEjRw37'
 set xlabel "Графік  ".strftime("%d.%m.%Y,%H:%M:%S",local_time)
 #вставляю к п перед даними по температурі подачі котла
@@ -96,12 +99,12 @@ set xtics rotate by -90
 set xdata time
 set timefmt "%d.%m.%Y,%H:%M:%S"
 
-local_time_start=local_time-2*24*60*60
+local_time_start=local_time-1*24*60*60
 timestart = strftime("%d.%m.%Y,00:00:00",local_time_start) ## початок доби
 timeend =  strftime("%d.%m.%Y,%H:%M:%S",local_time)
-etvmx = 75
-etvmn = 50
-#set xrange [timestart:timeend]
+etvmx = 180
+etvmn = 150
+set xrange [timestart:timeend]
 #set xrange ["07.10.2021,00:00:00":"09.10.2021,14:00:00"]
 # time range must be in same format as data file
 # лише для довідки:    set xrange ["07.10.2021,00:00:00":"09.10.2021,14:00:00"]
@@ -138,7 +141,7 @@ set timefmt "%d.%m.%Y,%H:%M"
 
 set multiplot 
 #layout 3,1
-list = "20211007 20211008 20211009"
+list = today_date.today_date1
 #pause mouse any "Any key or button will terminate".list.timestart
 do for [i in list] {
 plot i.".log" using 1:4 ti "КотелПодача" ls 4,\
@@ -162,7 +165,7 @@ plot i.".log" using 1:4 ti "КотелПодача" ls 4,\
 '' using 1:($6) ti "Приміщення" ls 3,\
 '' every etvmn:etvmn using 1:($6):(LabelNamePK(substr(stringcolumn(6),1,4))) w labels tc ls 2 center offset -3,1,\
 \
-'' using 1:($8+5):xtic(substr(stringcolumn(2),0,5))  every 10 ti "Вулиця" ls 7,\
+'' using 1:($8+5):xtic(substr(stringcolumn(2),0,5))  every 40 ti "Вулиця" ls 7,\
 '' every etvmn:etvmn using 1:($8+4):(LabelNameWT(substr(stringcolumn(8),1,4))) w labels tc ls 4 center offset 3,0,\
 \
 '' every 5:5 using 1:(($3-$8))/2 ti "РізницяБО-Вулиця" ls 1,\
