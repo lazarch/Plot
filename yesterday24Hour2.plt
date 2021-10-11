@@ -1,6 +1,7 @@
 # тут вставлено рядок для виводу графіку в BASH скрипті в командному рядку
 #!D:\PORTABLE\gnuplot\bin\wgnuplot
 # тут вставлено рядок для виводу графіку в BASH скрипті в командному рядку
+
 reset 
 set encoding utf8
 
@@ -56,6 +57,7 @@ set style line 4 lc rgb 'red'         lt 2 lw 3 pt 0 ps 1        ## КотелП
 set style line 5 lc rgb 'dark-violet'        lt 2 lw 2 pt 0 ps 1        ## КотелОбратка blue
 set style line 6 lc rgb 'sea-green'   lt 2 lw 3 pt 0 ps 1        ## ДомОбратка dark-blue
 set style line 7 lc rgb 'orange'      lt 1 lw 1 pt 0 ps 1        ## НаружнаяТемпература blue
+set style line 8 lc rgb 'blue'        lt 1 lw 1 pt 0 ps 1        ## НаружнаяТемпература blue
 
 set xtics  norangelimit 
 set xtics rotate by -90
@@ -136,8 +138,8 @@ plot today_date\
 '' using 1:($5) ti "КотелОбратка" ls 3,\
 '' every etvmn:etvmn using 1:($5):(LabelNameKO(substr(stringcolumn(5),1,4))) w labels tc ls 3 center offset 3,-1,\
 \
-'' every 5:5 using 1:($4-$5)+50 ti "РізницяКотел" ls 2,\
-'' every etvmn:etvmn using 1:($4-$5)+50:(LabelNameDiffK((substr(stringcolumn(4),1,4)),(substr(stringcolumn(5),1,4)))) w labels tc ls 4 center offset 0,-1,\
+'' every 5:5 using 1:($4-$5)+45 ti "РізницяКотел" ls 2,\
+'' every etvmn:etvmn using 1:($4-$5)+45:(LabelNameDiffK((substr(stringcolumn(4),1,4)),(substr(stringcolumn(5),1,4)))) w labels tc ls 6 center offset 0,1,\
 \
 '' using 1:($7) ti "ДомПодача " ls 4,\
 '' every etvmn:etvmn using 1:($7):(LabelNameDP(substr(stringcolumn(7),1,4))) w labels tc ls 5 center offset -3,1,\
@@ -145,8 +147,8 @@ plot today_date\
 '' using 1:($3) ti "ДомОбратка" ls 6,\
 '' every etvmn:etvmn using 1:($3):(LabelNameDO(substr(stringcolumn(3),1,4))) w labels tc ls 6 center offset -3,-1,\
 \
-'' every 5:5 using 1:($7-$3)+48 ti "РізницяБудинок" ls 1,\
-'' every etvmn:etvmn using 1:($7-$3)+48:(LabelNameDiffD((substr(stringcolumn(7),1,4)),(substr(stringcolumn(3),1,4)))) w labels tc ls 6 center offset 0,-1,\
+'' every 5:5 using 1:($7-$3)+44 ti "РізницяБудинок" ls 1,\
+'' every etvmn:etvmn using 1:($7-$3)+44:(LabelNameDiffD((substr(stringcolumn(7),1,4)),(substr(stringcolumn(3),1,4)))) w labels tc ls 6 center offset 0,-1,\
 \
 '' using 1:($6) ti "Приміщення" ls 3,\
 '' every etvmn:etvmn using 1:($6):(LabelNamePK(substr(stringcolumn(6),1,4))) w labels tc ls 2 center offset -3,1,\
@@ -154,11 +156,10 @@ plot today_date\
 '' using 1:($8+5):xtic(substr(stringcolumn(2),0,5))  every 10 ti "Вулиця" ls 7,\
 '' every etvmn:etvmn using 1:($8+4):(LabelNameWT(substr(stringcolumn(8),1,4))) w labels tc ls 4 center offset 3,0,\
 \
-'' every 5:5 using 1:(($3-$8)+14) ti "РізницяБО-Вулиця" ls 3,\
-'' every etvmn:etvmn using 1:(($3-$8)+14):(LabelNameDiffW((substr(stringcolumn(3),1,4)),(substr(stringcolumn(8),1,4)))) w labels tc ls 4 center offset 0,-1,\
+'' every 5:5 using 1:(($3-$8))/2 ti "РізницяБО-Вулиця" ls 1,\
+'' every etvmn:etvmn using 1:(($3-$8))/2:(LabelNameDiffW((substr(stringcolumn(3),1,4)),(substr(stringcolumn(8),1,4)))) w labels tc ls 4 center offset 0,-1,\
 \
-   55 ls 7,64 ls 7
-
+   55 ls 8,64 ls 7
 
 # а можна робити і так
 # '' every 5:5 using 1:($9+10) ti "КотелВходОбратка" ls 7,\	 
