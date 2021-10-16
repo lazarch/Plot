@@ -15,8 +15,6 @@ local_time_file=local_time-24*60*60              #для показу вчора
 # константа, що додає до UTC 2 чи 3 години, для вірного відображення дати файлу
 # (2*3600), для літнього часу множник 3, для зимового 2, і ще у 85 рядку потрібно міняти !!!
 
-system(sprintf("c:\\TCPU72\\Programm\\Winscp\\winscp.com /ini=nul /script=Kotel.txt"))
-
 unset term
 set terminal win 2
 wtitle = strftime("Select 4 hour 0.5 min %d %m %Y",local_time).' time '.strftime("%H:%M:%S",local_time).' pause = ' .pa_. 'c. cycle N '.c_p
@@ -65,8 +63,14 @@ set ytics add ("25" 25, "28" 28, "34" 34, "55" 55, "62" 62, "64" 64, "70" 70)
 set autoscale keepfix
 
 set ylabel "Градуси" 
+#****************************************************************************
 set datafile sep ','
 today_date='d:\Libraries\Plot\Logs\'.strftime("%Y%m%d",local_time).'.log'
+today_date_wget='d:\Libraries\Plot\Logs\'.strftime("%Y%m%d",local_time).'.log'
+wget_file=sprintf("d:\\Libraries\\Plot\\wget.exe -q --user=F6 --password=1953 ftp://192.168.1.13/20211016.log --output-document=".today_date_wget)
+system(sprintf(wget_file))
+#pause mouse any "Any key or button will terminate" .wget_file
+#****************************************************************************
 set xlabel "Графік  ".strftime("%d.%m.%Y,%H:%M:%S",local_time)
 #вставляю к п перед даними по температурі подачі котла
 LabelNameKP(String) = sprintf("{%s} кп", String)
@@ -83,15 +87,16 @@ LabelNameDiffW(String, String1) = sprintf("до-в {%.1f} ", String - String1)
 set xtics rotate by -90
 
 set xdata time
-set timefmt "%d.%m.%Y,%H:%M:%S"
-
-timestart = strftime("%d.%m.%Y,%H:%M:%S",local_time-(4*3600)) ## інтервал 4 години
-timeend =  strftime("%d.%m.%Y,%H:%M:%S",local_time)
-etvmx = 20
-etvmn = 10
-set xrange [timestart:timeend]
 set format x "%H:%M"
 set timefmt "%d.%m.%Y,%H:%M"
+#set timefmt "%d.%m.%Y,%H:%M:%S"
+time_graf=4                      ## інтервал 4 години
+time_interval=time_graf
+timestart = strftime("%d.%m.%Y,%H:%M:%S",local_time-(time_graf*3600))
+timeend =  strftime("%d.%m.%Y,%H:%M:%S",local_time)
+set xrange [timestart:timeend]
+etvmx = 20
+etvmn = 10
 
 plot today_date\
    using 1:4 ti "КотелПодача" ls 4,\
@@ -115,7 +120,7 @@ plot today_date\
 '' using 1:($6) ti "Приміщення" ls 3,\
 '' every etvmn:etvmn using 1:($6):(LabelNamePK(substr(stringcolumn(6),1,4))) w labels tc ls 2 center offset -3,1,\
 \
-'' using 1:($8+5):xtic(substr(stringcolumn(2),0,5))  every 10 ti "Вулиця" ls 7,\
+'' using 1:($8+5):xtic(substr(stringcolumn(2),0,5))  every time_graf ti "Вулиця" ls 7,\
 '' every etvmn:etvmn using 1:($8+4):(LabelNameWT(substr(stringcolumn(8),1,4))) w labels tc ls 4 center offset 3,0,\
 \
 '' every 5:5 using 1:(($3-$8))/2 ti "РізницяБО-Вулиця" ls 1,\
