@@ -28,7 +28,6 @@ set key inside right top vertical Right noreverse enhanced autotitle columnhead 
 set key opaque
 set key outside above 
 set pointsize 2
-
 set title "today4Hour 0_5 min.plt"   #назва графіку
 set style fill   solid 1.00 border lt -1
 set style data linespoints
@@ -82,9 +81,7 @@ set xtics rotate by -90
 set xdata time
 set format x "%H:%M"
 set timefmt "%d.%m.%Y,%H:%M"
-#set timefmt "%d.%m.%Y,%H:%M:%S"
 time_graf=4                      ## показуємо 4 години
-time_interval=time_graf
 timestart = strftime("%d.%m.%Y,%H:%M:%S",local_time-(time_graf*3600))
 timeend =  strftime("%d.%m.%Y,%H:%M:%S",local_time)
 set xrange [timestart:timeend]
@@ -113,7 +110,7 @@ plot today_date\
 '' using 1:($6) ti "Приміщення" ls 3,\
 '' every etvmn:etvmn using 1:($6):(LabelNamePK(substr(stringcolumn(6),1,4))) w labels tc ls 2 center offset -3,1,\
 \
-'' using 1:($8+5):xtic(substr(stringcolumn(2),0,5))  every time_interval ti "Вулиця" ls 7,\
+'' using 1:($8+5):xtic(substr(stringcolumn(2),0,5))  every 2:2 ti "Вулиця" ls 7,\
 '' every etvmn:etvmn using 1:($8+4):(LabelNameWT(substr(stringcolumn(8),1,4))) w labels tc ls 4 center offset 3,0,\
 \
 '' every 5:5 using 1:(($3-$8))/2 ti "РізницяБО-Вулиця" ls 1,\
