@@ -60,9 +60,9 @@ set ylabel "Градуси"
 #****************************************************************************
 set datafile sep ','
 
-today_date=' d:\Libraries\Plot\Logs\'.strftime("%Y%m%d",local_time).'.log'
-today_date1=' d:\Libraries\Plot\Logs\'.strftime("%Y%m%d",local_time-24*60*60).'.log'
-today_date2=' d:\Libraries\Plot\Logs\'.strftime("%Y%m%d",local_time-2*24*60*60).'.log'
+today_date=' d:\Libraries\Plot\Logs\'.strftime("%Y%m%d",local_time)
+today_date1=' d:\Libraries\Plot\Logs\'.strftime("%Y%m%d",local_time-24*60*60)
+today_date2=' d:\Libraries\Plot\Logs\'.strftime("%Y%m%d",local_time-2*24*60*60)
 today_date='d:\Libraries\Plot\Logs\'.strftime("%Y%m%d",local_time).'.log'
 today_date_wget='d:\Libraries\Plot\Logs\'.strftime("%Y%m%d",local_time).'.log'
 wget_file=sprintf("d:\\Libraries\\Plot\\wget.exe -q --user=F6 --password=1953 ftp://192.168.1.13/20211016.log --output-document=".today_date_wget)
@@ -99,7 +99,7 @@ set multiplot layout 1,1 columnsfirst
 
 list = today_date.today_date1
 do for [i in list] {
-plot i using 1:4 ti "КотелПодача" ls 4,\
+plot i.".log" using 1:4 ti "КотелПодача" ls 4,\
 '' every etvmn:etvmn using 1:4:(LabelNameKP(substr(stringcolumn(4),1,4))) w labels tc ls 1 center offset 3,1,\
 \
 '' using 1:($5) ti "КотелОбратка" ls 3,\
