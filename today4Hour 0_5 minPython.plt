@@ -60,7 +60,7 @@ set ylabel "Градуси"
 set datafile sep ','
 today_date='d:\Libraries\Plot\Logs\'.strftime("%Y%m%d",local_time).'.log'
 today_date_wget='d:\Libraries\Plot\Logs\'.strftime("%Y%m%d",local_time).'.log'
-wget_file=sprintf("d:\\Libraries\\Plot\\wget.exe -q --user=F6 --password=1953 ftp://192.168.1.13/20211016.log --output-document=".today_date_wget)
+wget_file=sprintf("d:\\Libraries\\Plot\\wget.exe -q --user=F6 --password=1953 ftp://192.168.1.13/20211017.log --output-document=".today_date_wget)
 system(sprintf(wget_file))
 #pause mouse any "Any key or button will terminate" .wget_file
 #****************************************************************************
