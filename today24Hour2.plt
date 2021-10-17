@@ -54,11 +54,23 @@ set autoscale keepfix
 set ylabel "Градуси" 
 #****************************************************************************
 set datafile sep ','
-today_date='d:\Libraries\Plot\Logs\'.strftime("%Y%m%d",local_time).'.log'
-today_date_wget='d:\Libraries\Plot\Logs\'.strftime("%Y%m%d",local_time).'.log'
-wget_file=sprintf("d:\\Libraries\\Plot\\wget.exe -q --user=F6 --password=1953 ftp://192.168.1.13/20211016.log --output-document=".today_date_wget)
-system(sprintf(wget_file))
-#pause mouse any "Any key or button will terminate" .wget_file
+
+# важливі всі пропуски (пробіли), особливо у list та sprintf
+today_date= 'd:\Libraries\Plot\Logs\'.strftime("%Y%m%d",local_time).'.log '
+#today_date1='d:\Libraries\Plot\Logs\'.strftime("%Y%m%d",local_time-24*60*60).'.log '
+#today_date2='d:\Libraries\Plot\Logs\'.strftime("%Y%m%d",local_time-2*24*60*60).'.log '
+today_date_ftp='//192.168.1.13/'.strftime("%Y%m%d",local_time).'.log'
+#today_date_ftp1='//192.168.1.13/'.strftime("%Y%m%d",local_time-24*60*60).'.log'
+#today_date_ftp2='//192.168.1.13/'.strftime("%Y%m%d",local_time-2*24*60*60).'.log'
+wget_file =sprintf(' d:\\Libraries\\Plot\\wget.exe -q --user=F6 --password=1953 ftp:'.today_date_ftp.' --output-document='.today_date)
+#wget_file1=sprintf(' d:\\Libraries\\Plot\\wget.exe -q --user=F6 --password=1953 ftp:'.today_date_ftp1.' --output-document='.today_date1)
+#wget_file2=sprintf(' d:\\Libraries\\Plot\\wget.exe -q --user=F6 --password=1953 ftp:'.today_date_ftp2.' --output-document='.today_date2)
+system(wget_file)
+#system(wget_file1)
+#system(wget_file2)
+#pause mouse any "Any key or button will terminate" .wget_file .today_date
+#pause mouse any "Any key or button will terminate" .wget_file1 .today_date1
+#pause mouse any "Any key or button will terminate" .wget_file2 .today_date2
 #****************************************************************************
 set xlabel "Графік  ".strftime("%d.%m.%Y,%H:%M:%S",local_time)
 LabelNameKP(String) = sprintf("{%s} кп", String)   #вставляю к п перед даними по температурі подачі котла
@@ -74,7 +86,7 @@ LabelNameDiffW(String, String1) = sprintf("до-в {%.1f} ", String - String1)
 #**********************************************
 set xtics rotate by -90
 set xdata time
-set timefmt "%d.%m.%Y,%H:%M:%S"
+set timefmt "%d.%m.%Y,%H:%M"
 timestart = strftime("%d.%m.%Y,00:00:00",local_time) ## початок доби
 timeend =  strftime("%d.%m.%Y,%H:%M:%S",local_time)
 etvmx = 75

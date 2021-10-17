@@ -73,9 +73,9 @@ wget_file2=sprintf(' d:\\Libraries\\Plot\\wget.exe -q --user=F6 --password=1953 
 system(wget_file)
 system(wget_file1)
 system(wget_file2)
-pause mouse any "Any key or button will terminate" .wget_file .today_date
-pause mouse any "Any key or button will terminate" .wget_file1 .today_date1
-pause mouse any "Any key or button will terminate" .wget_file2 .today_date2
+#pause mouse any "Any key or button will terminate" .wget_file .today_date
+#pause mouse any "Any key or button will terminate" .wget_file1 .today_date1
+#pause mouse any "Any key or button will terminate" .wget_file2 .today_date2
 #****************************************************************************
 set xlabel "Графік  ".strftime("%d.%m.%Y,%H:%M:%S",local_time)
 LabelNameKP(String) = sprintf("{%s} кп", String)   #вставляю к п перед даними по температурі подачі котла
