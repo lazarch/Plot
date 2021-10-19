@@ -16,7 +16,7 @@ local_time_file=local_time-24*60*60              #для показу вчора
 # константа, що додає до UTC 2 чи 3 години, для вірного відображення дати файлу (2*3600), для літнього часу множник 3, для зимового 2 !!!
 unset term
 set terminal win 1
-wtitle = strftime("with 00 hour %d %m %Y %H:%M:%S",local_time).' time '.strftime("%H:%M:%S",local_time).' pause = ' .pa_. 'c. cycle N '
+wtitle = strftime("with 00 hour %d %m %Y %H:%M:%S",local_time).' time '.strftime("%H:%M:%S",local_time)
 
 set term windows font "Times,8" title wtitle size 2200,800 enhanced
 set boxwidth 0.3 absolute
@@ -59,24 +59,6 @@ set autoscale keepfix
 set ylabel "Градуси" 
 #****************************************************************************
 set datafile sep ','
-
-# важливі всі пропуски (пробіли), особливо у list та sprintf
-today_date= 'd:\Libraries\Plot\Logs\'.strftime("%Y%m%d",local_time).'.log '
-today_date1='d:\Libraries\Plot\Logs\'.strftime("%Y%m%d",local_time-24*60*60).'.log '
-today_date2='d:\Libraries\Plot\Logs\'.strftime("%Y%m%d",local_time-2*24*60*60).'.log '
-today_date_ftp='//192.168.1.13/'.strftime("%Y%m%d",local_time).'.log'
-today_date_ftp1='//192.168.1.13/'.strftime("%Y%m%d",local_time-24*60*60).'.log'
-today_date_ftp2='//192.168.1.13/'.strftime("%Y%m%d",local_time-2*24*60*60).'.log'
-wget_file =sprintf(' d:\\Libraries\\Plot\\wget.exe -q --user=F6 --password=1953 ftp:'.today_date_ftp.' --output-document='.today_date)
-wget_file1=sprintf(' d:\\Libraries\\Plot\\wget.exe -q --user=F6 --password=1953 ftp:'.today_date_ftp1.' --output-document='.today_date1)
-wget_file2=sprintf(' d:\\Libraries\\Plot\\wget.exe -q --user=F6 --password=1953 ftp:'.today_date_ftp2.' --output-document='.today_date2)
-system(wget_file)
-system(wget_file1)
-system(wget_file2)
-#pause mouse any "Any key or button will terminate" .wget_file .today_date
-#pause mouse any "Any key or button will terminate" .wget_file1 .today_date1
-#pause mouse any "Any key or button will terminate" .wget_file2 .today_date2
-#****************************************************************************
 set xlabel "Графік  ".strftime("%d.%m.%Y,%H:%M:%S",local_time)
 LabelNameKP(String) = sprintf("{%s} кп", String)   #вставляю к п перед даними по температурі подачі котла
 LabelNameDP(String) = sprintf("дп:{%s}", String)
@@ -103,11 +85,21 @@ set yrange [-5:100]
 set format x "%H:%M"
 set timefmt "%d.%m.%Y,%H:%M"
 
+# важливі всі пропуски (пробіли), особливо у list та sprintf
+#****************************************************************************
+array local_date[3]
+local_date[1] = strftime("%Y%m%d",local_time-0*24*60*60)
+local_date[2] = local_date[1]-1
+local_date[3] = local_date[1]-2
+#****************************************************************************
 set multiplot layout 1,1 columnsfirst
+do for [i = 3:1:-1]  {
+today_date_ftp ='//192.168.1.13/'.local_date[i].'.log '
+local_date[i] = 'd:\Libraries\Plot\Logs\'.local_date[i] .'.log '
+wget_file =sprintf(' d:\\Libraries\\Plot\\wget.exe -q --user=F6 --password=1953 ftp:'.today_date_ftp .'--output-document='.local_date[i] )
+system(wget_file)
 
-list = today_date .today_date1 .today_date2
-do for [i in list] {
-plot i using 1:4 ti "КотелПодача" ls 4,\
+plot local_date[i] using 1:4 ti "КотелПодача" ls 4,\
 '' every etvmn:etvmn using 1:4:(LabelNameKP(substr(stringcolumn(4),1,4))) w labels tc ls 1 center offset 3,1,\
 \
 '' using 1:($5) ti "КотелОбратка" ls 3,\
