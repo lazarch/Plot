@@ -54,24 +54,6 @@ set autoscale keepfix
 set ylabel "Градуси" 
 #****************************************************************************
 set datafile sep ','
-
-# важливі всі пропуски (пробіли), особливо у list та sprintf
-today_date= 'd:\Libraries\Plot\Logs\'.strftime("%Y%m%d",local_time).'.log '
-#today_date1='d:\Libraries\Plot\Logs\'.strftime("%Y%m%d",local_time-24*60*60).'.log '
-#today_date2='d:\Libraries\Plot\Logs\'.strftime("%Y%m%d",local_time-2*24*60*60).'.log '
-today_date_ftp='//192.168.1.13/'.strftime("%Y%m%d",local_time).'.log'
-#today_date_ftp1='//192.168.1.13/'.strftime("%Y%m%d",local_time-24*60*60).'.log'
-#today_date_ftp2='//192.168.1.13/'.strftime("%Y%m%d",local_time-2*24*60*60).'.log'
-wget_file =sprintf(' d:\\Libraries\\Plot\\wget.exe -q --user=F6 --password=1953 ftp:'.today_date_ftp.' --output-document='.today_date)
-#wget_file1=sprintf(' d:\\Libraries\\Plot\\wget.exe -q --user=F6 --password=1953 ftp:'.today_date_ftp1.' --output-document='.today_date1)
-#wget_file2=sprintf(' d:\\Libraries\\Plot\\wget.exe -q --user=F6 --password=1953 ftp:'.today_date_ftp2.' --output-document='.today_date2)
-system(wget_file)
-#system(wget_file1)
-#system(wget_file2)
-#pause mouse any "Any key or button will terminate" .wget_file .today_date
-#pause mouse any "Any key or button will terminate" .wget_file1 .today_date1
-#pause mouse any "Any key or button will terminate" .wget_file2 .today_date2
-#****************************************************************************
 set xlabel "Графік  ".strftime("%d.%m.%Y,%H:%M:%S",local_time)
 LabelNameKP(String) = sprintf("{%s} кп", String)   #вставляю к п перед даними по температурі подачі котла
 LabelNameDP(String) = sprintf("дп:{%s}", String)
@@ -83,10 +65,10 @@ LabelNameWT(String) = sprintf("в:{%s}", String)
 LabelNameDiffK(String, String1) = sprintf("кп-ко {%.1f} ", String - String1)
 LabelNameDiffD(String, String1) = sprintf("дп-до {%.1f} ", String - String1)
 LabelNameDiffW(String, String1) = sprintf("до-в {%.1f} ", String - String1)
-#**********************************************
 set xtics rotate by -90
 set xdata time
 set timefmt "%d.%m.%Y,%H:%M"
+local_time_start=local_time-2*24*60*60
 timestart = strftime("%d.%m.%Y,00:00:00",local_time) ## початок доби
 timeend =  strftime("%d.%m.%Y,%H:%M:%S",local_time)
 etvmx = 75
@@ -95,8 +77,22 @@ set xrange [timestart:timeend]
 set format x "%H:%M"
 set timefmt "%d.%m.%Y,%H:%M"
 
-plot today_date\
-   using 1:4 ti "КотелПодача" ls 4,\
+# важливі всі пропуски (пробіли), особливо у list та sprintf
+#****************************************************************************
+array local_date[3]
+local_date[1] = strftime("%Y%m%d",local_time-0*24*60*60)
+local_date[2] = local_date[1]-1
+local_date[3] = local_date[1]-2
+#****************************************************************************
+set multiplot layout 1,1 columnsfirst
+do for [i = 1:1]  {
+#pause mouse any "Any key or button will terminate "
+today_date_ftp ='ftp://192.168.1.13/'.local_date[i].'.log '
+local_date[i] = 'd:\Libraries\Plot\Logs\'.local_date[i] .'.log '
+curl_file = sprintf('curl  --user F6:1953 '.today_date_ftp .' -R -s -o '.local_date[i] )
+#pause mouse any "Any key or button will terminate " .curl_file . wget_file
+system(curl_file)
+plot local_date[i] using 1:4 ti "КотелПодача" ls 4,\
 '' every etvmn:etvmn using 1:4:(LabelNameKP(substr(stringcolumn(4),1,4))) w labels tc ls 1 center offset 3,1,\
 \
 '' using 1:($5) ti "КотелОбратка" ls 3,\
@@ -124,7 +120,13 @@ plot today_date\
 '' every etvmn:etvmn using 1:(($3-$8))/2:(LabelNameDiffW((substr(stringcolumn(3),1,4)),(substr(stringcolumn(8),1,4)))) w labels tc ls 4 center offset 0,-1,\
 \
    55 ls 8,64 ls 7
+}
+unset multiplot
 
+# а можна робити і так
+# '' every 5:5 using 1:($9+10) ti "КотелВходОбратка" ls 7,\	 
+# тут я додаю 10 до значення у стовбчику і за рахунок цього зміщую показник, хоча ti вказую правильне
+#pause mouse any "Any key or button will terminate"
 pause pa_
 unset border
 unset key

@@ -7,10 +7,7 @@ set encoding utf8
 
 pa_ = 120  ## значення паузи в оновленні графіку
 
-
-local_time=time(0.0)+(3*3600) ## місцевий час, час на Який показуємо графік
 cycle = 1
-
 local_time=time(0.0)+(3*3600)          ## місцевий час, час на Який показуємо графік
 local_time_file=local_time-24*60*60              #для показу вчорашнього графіку
 # константа, що додає до UTC 2 чи 3 години, для вірного відображення дати файлу (2*3600), для літнього часу множник 3, для зимового 2 !!!
@@ -81,7 +78,6 @@ timeend =  strftime("%d.%m.%Y,%H:%M:%S",local_time)
 etvmx = 180
 etvmn = 150
 set xrange [timestart:timeend]
-set yrange [-5:100]
 set format x "%H:%M"
 set timefmt "%d.%m.%Y,%H:%M"
 
@@ -97,7 +93,7 @@ do for [i = 3:1:-1]  {
 #pause mouse any "Any key or button will terminate "
 today_date_ftp ='ftp://192.168.1.13/'.local_date[i].'.log '
 local_date[i] = 'd:\Libraries\Plot\Logs\'.local_date[i] .'.log '
-curl_file = sprintf('curl  --user F6:1953 '.today_date_ftp .' -R -o '.local_date[i] )
+curl_file = sprintf('curl  --user F6:1953 '.today_date_ftp .' -R -s -o '.local_date[i] )
 #pause mouse any "Any key or button will terminate " .curl_file . wget_file
 system(curl_file)
 plot local_date[i] using 1:4 ti "КотелПодача" ls 4,\
@@ -141,5 +137,3 @@ unset key
 unset label
 unset arrow
 unset term
-
-#
