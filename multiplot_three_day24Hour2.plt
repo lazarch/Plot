@@ -94,11 +94,12 @@ local_date[3] = local_date[1]-2
 #****************************************************************************
 set multiplot layout 1,1 columnsfirst
 do for [i = 3:1:-1]  {
-today_date_ftp ='//192.168.1.13/'.local_date[i].'.log '
+#pause mouse any "Any key or button will terminate "
+today_date_ftp ='ftp://192.168.1.13/'.local_date[i].'.log '
 local_date[i] = 'd:\Libraries\Plot\Logs\'.local_date[i] .'.log '
-wget_file =sprintf(' d:\\Libraries\\Plot\\wget.exe -q --user=F6 --password=1953 ftp:'.today_date_ftp .'--output-document='.local_date[i] )
-system(wget_file)
-
+curl_file = sprintf('curl  --user F6:1953 '.today_date_ftp .' -R -o '.local_date[i] )
+#pause mouse any "Any key or button will terminate " .curl_file . wget_file
+system(curl_file)
 plot local_date[i] using 1:4 ti "КотелПодача" ls 4,\
 '' every etvmn:etvmn using 1:4:(LabelNameKP(substr(stringcolumn(4),1,4))) w labels tc ls 1 center offset 3,1,\
 \

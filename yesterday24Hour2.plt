@@ -5,22 +5,15 @@
 reset 
 set encoding utf8
 
-pa_ = 120  ## значення паузи в оновленні графіку
 
-do for [c_p = 0 : 160: 1]{
-local_time=time(0.0)+(3*3600) ## місцевий час, час на Який показуємо графік
-cycle = 1
-# константа, що додає до UTC 2 чи 3 години, для вірного відображення дати файлу
-# (2*3600), для літнього часу множник 3, для зимового 2, і ще у 85 рядку потрібно міняти !!!
 
-local_time=time(0.0)+(3*3600) ## місцевий час, час на Який показуємо графік
-#для показу вчорашнього графіку
-local_time_file=local_time-24*60*60
 
-system(sprintf("c:\\TCPU72\\Programm\\Winscp\\winscp.com /ini=nul /script=Kotel.txt"))
+local_time=time(0.0)+(3*3600)          ## місцевий час, час на Який показуємо графік
+local_time_file=local_time-24*60*60              #для показу вчорашнього графіку
+# константа, що додає до UTC 2 чи 3 години, для вірного відображення дати файлу (2*3600), для літнього часу множник 3, для зимового 2 !!!
 unset term
 set terminal win 3
-wtitle = strftime("Yesterday with 00H %d %m %Y %H:%M:%S",local_time_file).' time '.strftime("%H:%M:%S",local_time).' pause = ' .pa_. 'c. cycle N '.c_p
+wtitle = strftime("Yesterday with 24 Hour %d %m %Y ",local_time_file)
 
 set term windows font "Times,8" title wtitle size 2200,800 enhanced
 set boxwidth 0.3 absolute
@@ -58,32 +51,28 @@ set style line 5 lc rgb 'dark-violet'        lt 2 lw 2 pt 0 ps 1        ## Ко�
 set style line 6 lc rgb 'sea-green'   lt 2 lw 3 pt 0 ps 1        ## ДомОбратка dark-blue
 set style line 7 lc rgb 'orange'      lt 1 lw 1 pt 0 ps 1        ## НаружнаяТемпература blue
 set style line 8 lc rgb 'blue'        lt 1 lw 1 pt 0 ps 1        ## НаружнаяТемпература blue
-
-set xtics  norangelimit 
-set xtics rotate by -90
-set ytics auto
-set ytics add ("25" 25, "28" 28, "34" 34, "55" 55, "62" 62, "64" 64, "70" 70)
-set autoscale keepfix
-
-set ylabel "Градуси" 
-#set yrange [ : 75 ] noreverse nowriteback
+#****************************************************************************
 set datafile sep ','
 
-#комбіную імя файлу з сьогоднішньої дати, для зєднання використовується крапка
-
-#today_date=strftime("%Y%m%d",local_time)
-#today_date='\\F7\Logs\'.today_date
-#today_date=today_date.'.log'
-
-# далі константа, що додає до UTC дві години, для вірного відображення дати файлу
-# t0=(2*3600) я просто додаю число до часу і формую імя файлу, інакше у мене після дванадцятої ночі
-# відображався старий файл і лише після другої показувався новий, для літнього часу множник 3, для зимового 2
-
-today_date='d:\Libraries\Plot\Logs\'.strftime("%Y%m%d",local_time_file).'.log'
-#today_date='https://drive.google.com/open?id=1pMnPYVmI4-gAruL2d0vSOf2vyKEjRw37'
+# важливі всі пропуски (пробіли), особливо у list та sprintf
+#today_date= 'd:\Libraries\Plot\Logs\'.strftime("%Y%m%d",local_time).'.log '
+today_date1='d:\Libraries\Plot\Logs\'.strftime("%Y%m%d",local_time-24*60*60).'.log '
+#today_date2='d:\Libraries\Plot\Logs\'.strftime("%Y%m%d",local_time-2*24*60*60).'.log '
+#today_date_ftp='//192.168.1.13/'.strftime("%Y%m%d",local_time).'.log'
+today_date_ftp1='//192.168.1.13/'.strftime("%Y%m%d",local_time-24*60*60).'.log'
+#today_date_ftp2='//192.168.1.13/'.strftime("%Y%m%d",local_time-2*24*60*60).'.log'
+#wget_file =sprintf(' d:\\Libraries\\Plot\\wget.exe -q --user=F6 --password=1953 ftp:'.today_date_ftp.' --output-document='.today_date)
+wget_file1=sprintf(' d:\\Libraries\\Plot\\wget.exe -q --user=F6 --password=1953 ftp:'.today_date_ftp1.' --output-document='.today_date1)
+#wget_file2=sprintf(' d:\\Libraries\\Plot\\wget.exe -q --user=F6 --password=1953 ftp:'.today_date_ftp2.' --output-document='.today_date2)
+#system(wget_file)
+system(wget_file1)
+#system(wget_file2)
+#pause mouse any "Any key or button will terminate" .wget_file .today_date
+#pause mouse any "Any key or button will terminate" .wget_file1 .today_date1
+#pause mouse any "Any key or button will terminate" .wget_file2 .today_date2
+#****************************************************************************
 set xlabel "Графік  ".strftime("%d.%m.%Y,%H:%M:%S",local_time_file)
-#вставляю к п перед даними по температурі подачі котла
-LabelNameKP(String) = sprintf("{%s} кп", String)
+LabelNameKP(String) = sprintf("{%s} кп", String)   #вставляю к п перед даними по температурі подачі котла
 LabelNameDP(String) = sprintf("дп:{%s}", String)
 LabelNameKO(String) = sprintf("{%s} ко", String)
 LabelNameDO(String) = sprintf("дo:{%s}", String)
@@ -94,44 +83,26 @@ LabelNameDiffK(String, String1) = sprintf("кп-ко {%.1f} ", String - String1)
 LabelNameDiffD(String, String1) = sprintf("дп-до {%.1f} ", String - String1)
 LabelNameDiffW(String, String1) = sprintf("до-в {%.1f} ", String - String1)
 #**********************************************
+set xtics  norangelimit 
 set xtics rotate by -90
+set xtics auto
+set ytics auto
+set ytics add ("25" 25, "28" 28, "34" 34, "55" 55, "62" 62, "64" 64, "70" 70)
+set autoscale keepfix
+set ylabel "Градуси" 
 
 set xdata time
-set timefmt "%d.%m.%Y,%H:%M:%S"
+set timefmt "%d.%m.%Y,%H:%M"
 timestart = strftime("%d.%m.%Y,00:00:00",local_time_file) ## початок доби
 timeend =  strftime("%d.%m.%Y,23:59:59",local_time_file)
-delta = timeend - timestart
+
 etvmx = 75
 etvmn = 50
 set xrange [timestart:timeend]
-# time range must be in same format as data file
-# лише для довідки:    set xrange ["06.02.2016,06:00:00":"06.02.2016,08:00:00"]
-# set format x "%H:%M"
-set format x "%H"
+set format x "%d.%H.%M"
 set timefmt "%d.%m.%Y,%H:%M"
-#**********************************************
-#	1			2	 3до	 4кп	 5ко	 6прим  7дп     8в		 9
-#24.09.2021,00:00:22,32.9375,67.6875,63.1875,19.9375,36.5625,7.6250
-                      
-# BF  191      03    	ДомОбратка, LabelNameDO
-# GE  110         04   			КотелПодача, LabelNameKP
-# D7  215           05                КотелОбратка, LabelNameKO      
-# 05    5             06-------------------  Приміщення,  LabelNamePK     ----ТрехходовыйКлапан, LabelNameTK
-# 9B  155               07                             ДомПодача,  LabelNameDP
-# 44   16                 08                                   Вулиця, LabelNameWT
-# 10   68                   09                                    		
-#set xrange ["18:00":"20:00"]
 
-# повернення триходового крана на одну поділку з 44 до 45 збільшує температуру подачі котла на три градуси
-# і зменшує температуру подачі в будинок на три градуси при сталих інших параметрах
-
-# зниження швидкості нижнього насоса з 2 до 1 збільшує температуру подачі котла на градус і зменшує 
-# температуру подачі в будинок на один градус
-
-# утеплення датчиків і труб надзвичайно ефективне!
-#
-
-plot today_date\
+plot today_date1\
    using 1:4 ti "КотелПодача" ls 4,\
 '' every etvmn:etvmn using 1:4:(LabelNameKP(substr(stringcolumn(4),1,4))) w labels tc ls 1 center offset 3,1,\
 \
@@ -153,7 +124,7 @@ plot today_date\
 '' using 1:($6) ti "Приміщення" ls 3,\
 '' every etvmn:etvmn using 1:($6):(LabelNamePK(substr(stringcolumn(6),1,4))) w labels tc ls 2 center offset -3,1,\
 \
-'' using 1:($8+5):xtic(substr(stringcolumn(2),0,5))  every 10 ti "Вулиця" ls 7,\
+'' using 1:($8+5):xtic(substr(stringcolumn(2),0,5)) every 15 ti "Вулиця" ls 7,\
 '' every etvmn:etvmn using 1:($8+4):(LabelNameWT(substr(stringcolumn(8),1,4))) w labels tc ls 4 center offset 3,0,\
 \
 '' every 5:5 using 1:(($3-$8))/2 ti "РізницяБО-Вулиця" ls 1,\
@@ -161,15 +132,9 @@ plot today_date\
 \
    55 ls 8,64 ls 7
 
-# а можна робити і так
-# '' every 5:5 using 1:($9+10) ti "КотелВходОбратка" ls 7,\	 
-# тут я додаю 10 до значення у стовбчику і за рахунок цього зміщую показник, хоча ti вказую правильне
-#pause mouse any "Any key or button will terminate"
-pause pa_
+pause mouse any "Any key or button will terminate"
 unset border
 unset key
 unset label
 unset arrow
 unset term
-}
-#
