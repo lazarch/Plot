@@ -58,24 +58,6 @@ set autoscale keepfix
 set ylabel "Градуси" 
 #****************************************************************************
 set datafile sep ','
-
-# важливі всі пропуски (пробіли), особливо у list та sprintf
-today_date= 'd:\Libraries\Plot\Logs\'.strftime("%Y%m%d",local_time).'.log '
-#today_date1='d:\Libraries\Plot\Logs\'.strftime("%Y%m%d",local_time-24*60*60).'.log '
-#today_date2='d:\Libraries\Plot\Logs\'.strftime("%Y%m%d",local_time-2*24*60*60).'.log '
-today_date_ftp='//192.168.1.13/'.strftime("%Y%m%d",local_time).'.log'
-#today_date_ftp1='//192.168.1.13/'.strftime("%Y%m%d",local_time-24*60*60).'.log'
-#today_date_ftp2='//192.168.1.13/'.strftime("%Y%m%d",local_time-2*24*60*60).'.log'
-wget_file =sprintf(' d:\\Libraries\\Plot\\wget.exe -q --user=F6 --password=1953 ftp:'.today_date_ftp.' --output-document='.today_date)
-#wget_file1=sprintf(' d:\\Libraries\\Plot\\wget.exe -q --user=F6 --password=1953 ftp:'.today_date_ftp1.' --output-document='.today_date1)
-#wget_file2=sprintf(' d:\\Libraries\\Plot\\wget.exe -q --user=F6 --password=1953 ftp:'.today_date_ftp2.' --output-document='.today_date2)
-system(wget_file)
-#system(wget_file1)
-#system(wget_file2)
-#pause mouse any "Any key or button will terminate" .wget_file .today_date
-#pause mouse any "Any key or button will terminate" .wget_file1 .today_date1
-#pause mouse any "Any key or button will terminate" .wget_file2 .today_date2
-#****************************************************************************
 set xlabel "Графік  ".strftime("%d.%m.%Y,%H:%M:%S",local_time)
 LabelNameKP(String) = sprintf("{%s} кп", String)   #вставляю к п перед даними по температурі подачі котла
 LabelNameDP(String) = sprintf("дп:{%s}", String)
@@ -87,7 +69,6 @@ LabelNameWT(String) = sprintf("в:{%s}", String)
 LabelNameDiffK(String, String1) = sprintf("кп-ко {%.1f} ", String - String1)
 LabelNameDiffD(String, String1) = sprintf("дп-до {%.1f} ", String - String1)
 LabelNameDiffW(String, String1) = sprintf("до-в {%.1f} ", String - String1)
-#**********************************************
 set xtics rotate by -90
 
 set xdata time
@@ -96,12 +77,28 @@ set timefmt "%d.%m.%Y,%H:%M"
 time_graf=4                      ## показуємо 4 години
 timestart = strftime("%d.%m.%Y,%H:%M:%S",local_time-(time_graf*3600))
 timeend =  strftime("%d.%m.%Y,%H:%M:%S",local_time)
-set xrange [timestart:timeend]
 etvmx = 20
 etvmn = 10
+set xrange [timestart:timeend]
+set format x "%H:%M"
+set timefmt "%d.%m.%Y,%H:%M"
 
-plot today_date\
-   using 1:4 ti "КотелПодача" ls 4,\
+# важливі всі пропуски (пробіли), особливо у list та sprintf
+#****************************************************************************
+array local_date[3]
+local_date[1] = strftime("%Y%m%d",local_time-0*24*60*60)
+local_date[2] = local_date[1]-1
+local_date[3] = local_date[1]-2
+#****************************************************************************
+set multiplot layout 1,1 columnsfirst
+do for [i = 1:1]  {
+#pause mouse any "Any key or button will terminate "
+today_date_ftp ='ftp://192.168.1.13/'.local_date[i].'.log '
+local_date[i] = 'd:\Libraries\Plot\Logs\'.local_date[i] .'.log '
+curl_file = sprintf('curl  --user F6:1953 '.today_date_ftp .' -R -s -o '.local_date[i] )
+#pause mouse any "Any key or button will terminate " .curl_file
+system(curl_file)
+plot local_date[i] using 1:4 ti "КотелПодача" ls 4,\
 '' every etvmn:etvmn using 1:4:(LabelNameKP(substr(stringcolumn(4),1,4))) w labels tc ls 1 center offset 3,1,\
 \
 '' using 1:($5) ti "КотелОбратка" ls 3,\
@@ -122,13 +119,15 @@ plot today_date\
 '' using 1:($6) ti "Приміщення" ls 3,\
 '' every etvmn:etvmn using 1:($6):(LabelNamePK(substr(stringcolumn(6),1,4))) w labels tc ls 2 center offset -3,1,\
 \
-'' using 1:($8+5):xtic(substr(stringcolumn(2),0,5))  every 2:2 ti "Вулиця" ls 7,\
+'' using 1:($8+5):xtic(substr(stringcolumn(2),0,5))  every etvmn ti "Вулиця" ls 7,\
 '' every etvmn:etvmn using 1:($8+4):(LabelNameWT(substr(stringcolumn(8),1,4))) w labels tc ls 4 center offset 3,0,\
 \
 '' every 5:5 using 1:(($3-$8))/2 ti "РізницяБО-Вулиця" ls 1,\
 '' every etvmn:etvmn using 1:(($3-$8))/2:(LabelNameDiffW((substr(stringcolumn(3),1,4)),(substr(stringcolumn(8),1,4)))) w labels tc ls 4 center offset 0,-1,\
 \
    55 ls 8,64 ls 7
+}
+unset multiplot
 
 pause pa_
 unset border

@@ -70,7 +70,8 @@ LabelNameDiffW(String, String1) = sprintf("до-в {%.1f} ", String - String1)
 set xtics rotate by -90
 
 set xdata time
-set timefmt "%d.%m.%Y,%H:%M:%S"
+set format x "%H:%M"
+set timefmt "%d.%m.%Y,%H:%M"
 
 local_time_start=local_time-2*24*60*60
 timestart = strftime("%d.%m.%Y,00:00:00",local_time_start) ## початок доби
