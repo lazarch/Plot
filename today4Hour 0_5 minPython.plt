@@ -89,16 +89,19 @@ array local_date[3]
 local_date[1] = strftime("%Y%m%d",local_time-0*24*60*60)
 local_date[2] = local_date[1]-1
 local_date[3] = local_date[1]-2
+
+set output 'out.svg'
+
 #****************************************************************************
 set multiplot layout 1,1 columnsfirst
 do for [i = 1:1]  {
 #pause mouse any "Any key or button will terminate "
-today_date_ftp ='ftp://192.168.1.13/'.local_date[i].'.log '
-local_date[i] = 'd:\Libraries\Plot\Logs\'.local_date[i] .'.log '
-curl_file = sprintf('curl  --user F6:1953 '.today_date_ftp .' -R -s -o '.local_date[i] )
-#pause mouse any "Any key or button will terminate " .curl_file . wget_file
-system(curl_file)
-plot local_date[i] using 1:4 ti "КотелПодача" ls 4,\
+#today_date_ftp ='ftp://192.168.1.13/'.local_date[i].'.log '
+#local_date[i] = 'd:\Libraries\Plot\Logs\'.local_date[i] .'.log '
+#curl_file = sprintf('curl  --user F6:1953 '.today_date_ftp .' -R -s -o '.local_date[i] )
+#pause mouse any "Any key or button will terminate " .curl_file
+#system(curl_file)
+plot data.txt using 1:4 ti "КотелПодача" ls 4,\
 '' every etvmn:etvmn using 1:4:(LabelNameKP(substr(stringcolumn(4),1,4))) w labels tc ls 1 center offset 3,1,\
 \
 '' using 1:($5) ti "КотелОбратка" ls 3,\
@@ -119,7 +122,7 @@ plot local_date[i] using 1:4 ti "КотелПодача" ls 4,\
 '' using 1:($6) ti "Приміщення" ls 3,\
 '' every etvmn:etvmn using 1:($6):(LabelNamePK(substr(stringcolumn(6),1,4))) w labels tc ls 2 center offset -3,1,\
 \
-'' using 1:($8+5):xtic(substr(stringcolumn(2),0,5))  every 2:2 ti "Вулиця" ls 7,\
+'' using 1:($8+5):xtic(substr(stringcolumn(2),0,5))  every etvmn ti "Вулиця" ls 7,\
 '' every etvmn:etvmn using 1:($8+4):(LabelNameWT(substr(stringcolumn(8),1,4))) w labels tc ls 4 center offset 3,0,\
 \
 '' every 5:5 using 1:(($3-$8))/2 ti "РізницяБО-Вулиця" ls 1,\

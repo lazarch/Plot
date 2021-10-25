@@ -84,19 +84,34 @@ set timefmt "%d.%m.%Y,%H:%M"
 
 # важливі всі пропуски (пробіли), особливо у list та sprintf
 #****************************************************************************
+array local_date_ini[3]
 array local_date[3]
-local_date[1] = strftime("%Y%m%d",local_time-0*24*60*60)
-local_date[2] = local_date[1]-1
-local_date[3] = local_date[1]-2
+array dftp[3]
+
+local_date_ini[1] = strftime("%Y%m%d",local_time-0*24*60*60)
+dftp[1]= 'ftp://192.168.1.13/'.local_date_ini[1].'.log '
+local_date[1] = 'd:\Libraries\Plot\Logs\'.local_date_ini[1] .'.log '
+
+local_date_ini[2] = local_date_ini[1]-1
+dftp[2]= 'ftp://192.168.1.13/'.local_date_ini[2].'.log '
+local_date[2] = 'd:\Libraries\Plot\Logs\'.local_date_ini[2] .'.log '
+
+local_date_ini[3] = local_date_ini[1]-2
+dftp[3]= 'ftp://192.168.1.13/'.local_date_ini[3].'.log '
+local_date[3] = 'd:\Libraries\Plot\Logs\'.local_date_ini[3] .'.log '
+
+curl_file = sprintf('curl  --user F6:1953 '.dftp[1] .' -R -s -o ' .local_date[1] .dftp[2] .' -R -s -o ' .local_date[2]  .dftp[3] .' -R -s -o ' .local_date[3] )
+
+#pause mouse any "Any key or button will terminate " .curl_file
+system(curl_file)
+
 #****************************************************************************
 set multiplot layout 1,1 columnsfirst
-do for [i = 3:1:-1]  {
-#pause mouse any "Any key or button will terminate "
-today_date_ftp ='ftp://192.168.1.13/'.local_date[i].'.log '
-local_date[i] = 'd:\Libraries\Plot\Logs\'.local_date[i] .'.log '
-curl_file = sprintf('curl  --user F6:1953 '.today_date_ftp .' -R -s -o '.local_date[i] )
+
 #pause mouse any "Any key or button will terminate " .curl_file . wget_file
-system(curl_file)
+#system(curl_file)
+do for [i = 3:1:-1]  {
+
 plot local_date[i] using 1:4 ti "КотелПодача" ls 4,\
 '' every etvmn:etvmn using 1:4:(LabelNameKP(substr(stringcolumn(4),1,4))) w labels tc ls 1 center offset 3,1,\
 \
