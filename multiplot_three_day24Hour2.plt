@@ -26,7 +26,7 @@ set key inside right top vertical Right noreverse enhanced autotitle columnhead 
 set key opaque
 set key outside above 
 set pointsize 2
-set title "today24Hour 2 min.plt" 
+set title "three day" 
 set style fill   solid 1.00 border lt -1
 set style data linespoints
 set style textbox opaque margins  1.0,  1.0 border
@@ -136,10 +136,6 @@ plot local_date[i] using 1:4 ti "КотелПодача" ls 4,\
 }
 unset multiplot
 
-# а можна робити і так
-# '' every 5:5 using 1:($9+10) ti "КотелВходОбратка" ls 7,\	 
-# тут я додаю 10 до значення у стовбчику і за рахунок цього зміщую показник, хоча ti вказую правильне
-#pause mouse any "Any key or button will terminate"
 pause pa_
 unset border
 unset key

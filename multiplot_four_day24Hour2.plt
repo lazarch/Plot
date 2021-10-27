@@ -26,7 +26,7 @@ set key inside right top vertical Right noreverse enhanced autotitle columnhead 
 set key opaque
 set key outside above 
 set pointsize 2
-set title "today24Hour 2 min.plt"    #назва графіку
+set title "four day"    #назва графіку
 set style fill   solid 1.00 border lt -1
 set style data linespoints
 set style textbox opaque margins  1.0,  1.0 border
