@@ -80,7 +80,6 @@ etvmx = 180
 etvmn = 150
 set xrange [timestart:timeend]
 set format x "%H:%M"
-set timefmt "%d.%m.%Y,%H:%M"
 
 # важливі всі пропуски (пробіли), особливо у list та sprintf
 #****************************************************************************

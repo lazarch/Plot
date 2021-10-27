@@ -7,7 +7,7 @@ set encoding utf8
 
 pa_ = 120  ## значення паузи в оновленні графіку
 
-cycle = 3
+cycle = 4
 local_time=time(0.0)+(3*3600)          ## місцевий час, час на Який показуємо графік
 local_time_file=local_time-24*60*60              #для показу вчорашнього графіку
 # константа, що додає до UTC 2 чи 3 години, для вірного відображення дати файлу (2*3600), для літнього часу множник 3, для зимового 2 !!!
@@ -72,12 +72,12 @@ set xtics rotate by -90
 set xdata time
 set timefmt "%d.%m.%Y,%H:%M:%S"
 
-local_time_start=local_time-(cycle-1)*24*60*60
-timestart = strftime("%d.%m.%Y,00:00:00",local_time_start) ## початок доби
-timeend =  strftime("%d.%m.%Y,%H:%M:%S",local_time)
+#local_time_start=local_time-(cycle-1)*24*60*60
+#timestart = strftime("%d.%m.%Y,00:00:00",local_time_start) ## початок доби
+#timeend =  strftime("%d.%m.%Y,%H:%M:%S",local_time)
 etvmx = 180
 etvmn = 150
-set xrange [timestart:timeend]
+#set xrange [timestart:timeend]
 set format x "%H:%M"
 
 # важливі всі пропуски (пробіли), особливо у list та sprintf
@@ -135,10 +135,6 @@ plot local_date[i] using 1:4 ti "КотелПодача" ls 4,\
 }
 unset multiplot
 
-# а можна робити і так
-# '' every 5:5 using 1:($9+10) ti "КотелВходОбратка" ls 7,\	 
-# тут я додаю 10 до значення у стовбчику і за рахунок цього зміщую показник, хоча ti вказую правильне
-#pause mouse any "Any key or button will terminate"
 pause pa_
 unset border
 unset key
