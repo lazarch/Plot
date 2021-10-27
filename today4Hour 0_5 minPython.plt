@@ -56,6 +56,7 @@ set ytics auto
 set ytics add ("25" 25, "28" 28, "34" 34, "55" 55, "62" 62, "64" 64, "70" 70)
 set autoscale keepfix
 set ylabel "Градуси" 
+set yrange [0 : 100 ] noreverse nowriteback
 #****************************************************************************
 set datafile sep ','
 set xlabel "Графік  ".strftime("%d.%m.%Y,%H:%M:%S",local_time)

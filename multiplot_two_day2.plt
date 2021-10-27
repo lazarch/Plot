@@ -7,7 +7,7 @@ set encoding utf8
 
 pa_ = 120  ## значення паузи в оновленні графіку
 
-cycle = 1
+cycle = 2
 
 local_time=time(0.0)+(3*3600)          ## місцевий час, час на Який показуємо графік
 local_time_file=local_time-24*60*60              #для показу вчорашнього графіку
@@ -27,7 +27,7 @@ set key inside right top vertical Right noreverse enhanced autotitle columnhead 
 set key opaque
 set key outside above 
 set pointsize 2
-set title "today24Hour 2 min.plt" 
+set title "two day.plt"        #назва графіку
 set style fill   solid 1.00 border lt -1
 set style data linespoints
 set style textbox opaque margins  1.0,  1.0 border
@@ -55,6 +55,7 @@ set ytics auto
 set ytics add ("25" 25, "28" 28, "34" 34, "55" 55, "62" 62, "64" 64, "70" 70)
 set autoscale keepfix
 set ylabel "Градуси" 
+set yrange [0 : 100 ] noreverse nowriteback
 #****************************************************************************
 set datafile sep ','
 set xlabel "Графік  ".strftime("%d.%m.%Y,%H:%M:%S",local_time)
@@ -73,29 +74,39 @@ set xtics rotate by -90
 set xdata time
 set timefmt "%d.%m.%Y,%H:%M:%S"
 
-local_time_start=local_time-1*24*60*60
+local_time_start=local_time-(cycle-1)*24*60*60
 timestart = strftime("%d.%m.%Y,00:00:00",local_time_start) ## початок доби
 timeend =  strftime("%d.%m.%Y,%H:%M:%S",local_time)
 etvmx = 180
 etvmn = 150
 set xrange [timestart:timeend]
 set format x "%H:%M"
+set timefmt "%d.%m.%Y,%H:%M"
 
 # важливі всі пропуски (пробіли), особливо у list та sprintf
 #****************************************************************************
-array local_date[2]
-local_date[1] = strftime("%Y%m%d",local_time-0*24*60*60)
-local_date[2] = local_date[1]-1
-#local_date[3] = local_date[1]-2
+array local_date_ini[cycle]
+array local_date[cycle]
+array dftp[cycle]
+curl_file=' '
+
+do for [i = 1:cycle:1]  {
+local_date_ini[i] = strftime("%Y%m%d",local_time-(cycle-i)*24*60*60)
+dftp[i]= 'ftp://192.168.1.13/'.local_date_ini[i].'.log '
+local_date[i] = 'd:\Libraries\Plot\Logs\'.local_date_ini[i] .'.log '
+curl_file = curl_file .dftp[i] .' -R -s -o ' .local_date[i]
+}
+curl_file = sprintf('curl  --user F6:1953 '.curl_file )
+#pause mouse any "Any key or button will terminate " .curl_file
+system(curl_file)
+
 #****************************************************************************
 set multiplot layout 1,1 columnsfirst
-do for [i = 2:1:-1]  {
-#pause mouse any "Any key or button will terminate "
-today_date_ftp ='ftp://192.168.1.13/'.local_date[i].'.log '
-local_date[i] = 'd:\Libraries\Plot\Logs\'.local_date[i] .'.log '
-curl_file = sprintf('curl  --user F6:1953 '.today_date_ftp .' -R -s -o '.local_date[i] )
+
 #pause mouse any "Any key or button will terminate " .curl_file . wget_file
-system(curl_file)
+#system(curl_file)
+do for [i = cycle:1:-1]  {
+
 plot local_date[i] using 1:4 ti "КотелПодача" ls 4,\
 '' every etvmn:etvmn using 1:4:(LabelNameKP(substr(stringcolumn(4),1,4))) w labels tc ls 1 center offset 3,1,\
 \
@@ -127,10 +138,6 @@ plot local_date[i] using 1:4 ti "КотелПодача" ls 4,\
 }
 unset multiplot
 
-# а можна робити і так
-# '' every 5:5 using 1:($9+10) ti "КотелВходОбратка" ls 7,\	 
-# тут я додаю 10 до значення у стовбчику і за рахунок цього зміщую показник, хоча ti вказую правильне
-#pause mouse any "Any key or button will terminate"
 pause pa_
 unset border
 unset key
