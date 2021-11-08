@@ -40,12 +40,12 @@ set linetype 6 lc rgb "dark-orange" lw 2 pt 3
 set linetype 7 lc rgb "black" lw 2 pt 11
 set linetype 8 lc rgb "goldenrod" lw 2
 set linetype cycle 8
-set style line 1 lc rgb 'dark-green'  lt 2 lw 2 pt 0 ps 1        ## ДомПодача dark-green
-set style line 2 lc rgb 'light-red'   lt 2 lw 2 pt 0 ps 1        ## ТрехходовыйКлапан green
-set style line 3 lc rgb 'dark-red'    lt 2 lw 3 pt 0 ps 1        ## ДомОбратка blue
-set style line 4 lc rgb 'red'         lt 2 lw 3 pt 0 ps 1        ## КотелПодача red
+set style line 1 lc rgb 'dark-green'  lt 2 lw 1 pt 0 ps 1        ## ДомПодача dark-green
+set style line 2 lc rgb 'light-red'   lt 2 lw 1 pt 0 ps 1        ## ТрехходовыйКлапан green
+set style line 3 lc rgb 'dark-red'    lt 2 lw 1 pt 0 ps 1        ## ДомОбратка blue
+set style line 4 lc rgb 'red'         lt 2 lw 1 pt 0 ps 1        ## КотелПодача red
 set style line 5 lc rgb 'dark-violet'        lt 2 lw 2 pt 0 ps 1        ## КотелОбратка blue
-set style line 6 lc rgb 'sea-green'   lt 2 lw 3 pt 0 ps 1        ## ДомОбратка dark-blue
+set style line 6 lc rgb 'sea-green'   lt 2 lw 1 pt 0 ps 1        ## ДомОбратка dark-blue
 set style line 7 lc rgb 'orange'      lt 1 lw 1 pt 0 ps 1        ## НаружнаяТемпература blue
 set style line 8 lc rgb 'blue'        lt 1 lw 1 pt 0 ps 1        ## НаружнаяТемпература blue
 set xtics  norangelimit 
@@ -104,7 +104,10 @@ set multiplot layout 1,1 columnsfirst
 #pause mouse any "Any key or button will terminate " .curl_file . wget_file
 #system(curl_file)
 do for [i = cycle:1:-1]  {
-
+plot local_date[i] using 1:4:5 w filledcurves closed fc "orange" fs solid 0.5 border lc "red"
+plot local_date[i] using 1:7:3 w filledcurves closed fc "cyan" fs solid 0.5 border lc "blue"
+plot local_date[i] using 1:($4-$5)+45:($7-$3)+44 w filledcurves closed fc "yellow" fs solid 0.5 border lc "blue"
+plot local_date[i] using 1:(($3-$8-20)):($8+5) w filledcurves closed fc "light-blue" fs solid 0.5 border lc "blue"
 plot local_date[i] using 1:4 ti "КотелПодача" ls 4,\
 '' every etvmn:etvmn using 1:4:(LabelNameKP(substr(stringcolumn(4),1,4))) w labels tc ls 1 center offset 3,1,\
 \
@@ -129,8 +132,8 @@ plot local_date[i] using 1:4 ti "КотелПодача" ls 4,\
 '' using 1:($8+5):xtic(substr(stringcolumn(2),0,5))  every 40 ti "Вулиця" ls 7,\
 '' every etvmn:etvmn using 1:($8+4):(LabelNameWT(substr(stringcolumn(8),1,4))) w labels tc ls 4 center offset 3,0,\
 \
-'' every 5:5 using 1:(($3-$8))/2 ti "РізницяБО-Вулиця" ls 1,\
-'' every etvmn:etvmn using 1:(($3-$8))/2:(LabelNameDiffW((substr(stringcolumn(3),1,4)),(substr(stringcolumn(8),1,4)))) w labels tc ls 4 center offset 0,-1,\
+'' every 5:5 using 1:(($3-$8-20)) ti "РізницяБО-Вулиця" ls 1,\
+'' every etvmn:etvmn using 1:(($3-$8-20)):(LabelNameDiffW((substr(stringcolumn(3),1,4)),(substr(stringcolumn(8),1,4)))) w labels tc ls 4 center offset 0,-1,\
 \
    55 ls 8,64 ls 7
 }
