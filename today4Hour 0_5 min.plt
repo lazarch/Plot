@@ -69,14 +69,10 @@ LabelNameDiffKDO_name(String) = sprintf("ко-до", String)
 LabelNameDiffKDO(String, String1) = sprintf("{%.1f} ", String - String1)
 LabelNameDiffW(String, String1) = sprintf("до-в {%.1f} ", String - String1)
 
-
-
-
-time_graf=4                      ## показуємо 4 години
-#local_time_start=local_time-(cycle-1)*24*60*60
-#*************************************************************
+#******************** далі усе в секундах для розрахунку періодів графіка
 timeend =  local_time
-timestart = timeend-(time_graf*3600)  
+
+timestart = timeend-(4 * 3600)  ## показуємо 4 години
 dt = timeend-timestart         
 dt = dt/60                  
 #*************************************************************
@@ -116,7 +112,7 @@ system('sed -i /Err/d ' .local_full_name[i])
 system(sprintf('touch -d  "%s" %s ', stat_data, local_full_name[i]))
 
 }
-#set label rotate by -90
+
 #****************************************************************************
 set multiplot layout 1,1 columnsfirst
 do for [i = cycle:1:-1]  {

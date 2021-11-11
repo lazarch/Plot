@@ -70,13 +70,11 @@ LabelNameDiffKDO_name(String) = sprintf("ко-до", String)
 LabelNameDiffKDO(String, String1) = sprintf("{%.1f} ", String - String1)
 LabelNameDiffW(String, String1) = sprintf("до-в {%.1f} ", String - String1)
 
-
-
-
-#local_time_start=local_time-(cycle-1)*24*60*60
-#*************************************************************
+#******************** далі усе в секундах для розрахунку періодів графіка
 timeend =  local_time
-timestart = timeend-(24*3600)  
+local_time_seconds  = strftime("%d.%m.%Y,00:00:00",local_time-(cycle-1)*24*60*60)  ## початок доби
+timestart = strptime("%d.%m.%Y,%H:%M:%S", local_time_seconds)
+
 dt = timeend-timestart         
 dt = dt/60                  
 #*************************************************************
