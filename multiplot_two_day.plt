@@ -8,8 +8,8 @@ set encoding utf8
 pa_ = 120  ## значення паузи в оновленні графіку
 cycle = 2
 
-
-local_time=time(0.0)+(2*3600)          ## місцевий час, час на Який показуємо графік для літнього часу множник 3, для зимового 2
+#місцевий час файлу зменшую на одну секунду для виключення випадків затримки запису у файл, коли у лог-файлі дата і час слідуючого дня
+local_time=time(0.0)+(2*3600)-1          ## місцевий час, час на Який показуємо графік для літнього часу множник 3, для зимового 2
 local_time_file=local_time-24*60*60              #для показу вчорашнього графіку
 # константа, що додає до UTC 2 чи 3 години, для вірного відображення дати файлу (2*3600), для літнього часу множник 3, для зимового 2 !!!
 unset term
@@ -50,7 +50,7 @@ set style line 8 lc rgb 'blue'        lt 1 lw 1 pt 0 ps 1        ## Наружн
 set xtics  norangelimit 
 set xtics rotate by -90
 set ytics auto
-set ytics add ("25" 25, "28" 28, "34" 34, "55" 55, "62" 62, "64" 64, "70" 70)
+set ytics add ("5" 5,"10" 10, "25" 25, "28" 28, "34" 34, "55" 55, "62" 62, "64" 64, "70" 70)
 set autoscale keepfix
 set ylabel "Градуси" 
 set yrange [0 : 100 ] noreverse nowriteback
@@ -83,29 +83,29 @@ set format x "%H:%M"
 
 # важливі всі пропуски (пробіли), особливо у list та sprintf
 #****************************************************************************
-array local_date_ini[cycle]
-array dftp[cycle]
-array local_date[cycle]
-array curl_file[cycle]
-
+array local_name[cycle]
+array local_full_name[cycle]
 
 do for [i = 1:cycle:1]  {
-local_date_ini[i] = strftime("%Y%m%d",local_time-(cycle-i)*24*60*60)
-dftp[i]= 'ftp://192.168.1.13/'.local_date_ini[i].'.log '
-local_date[i] = 'd:\Libraries\Plot\Logs\'.local_date_ini[i] .'.log '
-curl_file[i] = sprintf(dftp[i] .' -R -s -o ' .local_date[i])
-local_date_sed = 'd:\Libraries\Plot\Logs\'.local_date_ini[i] .'.log '
-local_time_sed = local_date_ini[i] .'2359.59 '
-#pause mouse any "Any key or button will terminate " .(sprintf('curl  --user F6:1953 '.curl_file[i] ) .' && ' .sprintf('sed -i "/Err/d" ' .local_date_sed)  .' && ' .sprintf('touch -t ' .local_time_sed .local_date_sed))
-system(sprintf('curl  --user F6:1953 '.curl_file[i] ) .' && ' .sprintf('sed -i "/Err/d" ' .local_date_sed)  .' && ' .sprintf('touch -t ' .local_time_sed .local_date_sed))
-#Властивості системи, змінні оточення, шлях до sed C:\PROGRA~1\Git\usr\bin\ 
+local_name[i] = strftime("%Y%m%d",local_time-(cycle-i)*24*60*60)	# name віддаленого файлу, також name локального файлу
+local_full_name[i] = 'd:\Libraries\Plot\Logs\'.local_name[i] .'.log '   #  повне name локального файлу
+
+#дата модифікації  - супер!************************************************************
+curl_file = sprintf('curl --user F6:1953 ftp://192.168.1.13/' .local_name[i] .'.log -R -s -o ' .local_full_name[i])
+system(curl_file)
+# запитали дату
+stat_data = system('stat -c %y ' .local_full_name[i])
+#pause mouse any "Any key or button will terminate " .stat_data
+system('sed -i /Err/d ' .local_full_name[i])
+system(sprintf('touch -d  "%s" %s ', stat_data, local_full_name[i]))
+
 }
 
 #****************************************************************************
 set multiplot layout 1,1 columnsfirst
 do for [i = cycle:1:-1]  {
-plot local_date[i] using 1:4 ti "КотелПодача" ls 4,\
-'' every etvmn:etvmn using 1:4:(LabelNameKP(substr(stringcolumn(4),1,4))) w labels tc ls 1 center offset 3,1,\
+plot local_full_name[i] using 1:4 ti "КотелПодача" ls 4,\
+'' every etvmn:etvmn using 1:4:(LabelNameKP(substr(stringcolumn(4),1,4))) w labels tc ls 1 center offset 0,1,\
 \
 '' using 1:4:5 w filledcurves  fc "orange" fs solid 0.5 border lc "red",\
 '' using 1:7:3 w filledcurves  fc "cyan" fs solid 0.5 border lc "blue", \
@@ -114,7 +114,7 @@ plot local_date[i] using 1:4 ti "КотелПодача" ls 4,\
 '' using 1:((($4-$7))+20):(($5-$3)+20) w filledcurves  fc "green" fs solid 0.5 border lc "blue",\
 \
 '' using 1:($5) ti "КотелОбратка" ls 3,\
-'' every etvmn:etvmn using 1:($5):(LabelNameKO(substr(stringcolumn(5),1,4))) w labels tc ls 3 center offset 3,-1,\
+'' every etvmn:etvmn using 1:($5):(LabelNameKO(substr(stringcolumn(5),1,4))) w labels tc ls 3 center offset 0,-1,\
 \
 '' every 5:5 using 1:($4-$5)+45 ti "РізницяКотел" ls 2,\
 '' every etvmn:etvmn using 1:($4-$5)+45:(LabelNameDiffK((substr(stringcolumn(4),1,4)),(substr(stringcolumn(5),1,4)))) w labels tc ls 6 center offset 0,1,\
@@ -126,24 +126,24 @@ plot local_date[i] using 1:4 ti "КотелПодача" ls 4,\
 '' every etvmn:etvmn using 1:($5-$3)+20:(LabelNameDiffKDO((substr(stringcolumn(5),1,4)),(substr(stringcolumn(3),1,4)))) w labels tc ls 6 center offset 0,-1,\
 \
 '' using 1:($7) ti "ДімПодача " ls 4,\
-'' every etvmn:etvmn using 1:($7):(LabelNameDP(substr(stringcolumn(7),1,4))) w labels tc ls 5 center offset -3,1,\
+'' every etvmn:etvmn using 1:($7):(LabelNameDP(substr(stringcolumn(7),1,4))) w labels tc ls 5 center offset 0,1,\
 \
 '' using 1:($3) ti "ДімОбратка" ls 6,\
-'' every etvmn:etvmn using 1:($3):(LabelNameDO(substr(stringcolumn(3),1,4))) w labels tc ls 6 center offset -3,-1,\
+'' every etvmn:etvmn using 1:($3):(LabelNameDO(substr(stringcolumn(3),1,4))) w labels tc ls 6 center offset 0,-1,\
 \
 '' every 5:5 using 1:($7-$3)+44 ti "РізницяБудинок" ls 1,\
 '' every etvmn:etvmn using 1:($7-$3)+44:(LabelNameDiffD((substr(stringcolumn(7),1,4)),(substr(stringcolumn(3),1,4)))) w labels tc ls 6 center offset 0,-1,\
 \
 '' using 1:($6) ti "Приміщення" ls 3,\
-'' every etvmn:etvmn using 1:($6):(LabelNamePK(substr(stringcolumn(6),1,4))) w labels tc ls 2 center offset -3,1,\
+'' every etvmn:etvmn using 1:($6):(LabelNamePK(substr(stringcolumn(6),1,4))) w labels tc ls 2 center offset 0,1,\
 \
-'' using 1:($8+5):xtic(substr(stringcolumn(2),0,5))  every etvmn/2 ti "Вулиця" ls 7,\
-'' every etvmn:etvmn using 1:($8+4):(LabelNameWT(substr(stringcolumn(8),1,4))) w labels tc ls 4 center offset 3,0,\
+'' using 1:($8+5):xtic(substr(stringcolumn(2),0,5))  every etvmn/10 ti "Вулиця" ls 7,\
+'' every etvmn:etvmn using 1:($8+4):(LabelNameWT(substr(stringcolumn(8),1,4))) w labels tc ls 4 ,\
 \
 '' every 5:5 using 1:(($3-$8-20)) ti "РізницяБО-Вулиця" ls 1,\
 '' every etvmn:etvmn using 1:(($3-$8-20)):(LabelNameDiffW((substr(stringcolumn(3),1,4)),(substr(stringcolumn(8),1,4)))) w labels tc ls 4 center offset 0,-1,\
 \
-   55 ls 8,64 ls 8
+   5 ls 8, 10 ls 8, 55 ls 8, 64 ls 8
    
    unset key
    set ytics 0,100 

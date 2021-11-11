@@ -10,16 +10,5 @@ today4Hour 2 min.plt
 today4Hour 6 min.plt
 today4Hour 30cOne.plt
 multiplot_four_day24Hour2.plt
-Demo/cities.dat
-Demo/cities.plt
-Demo/data.csv
-Demo/data1.csv
-Demo/datacsv.csv
-Demo/datacsv0.csv
-Demo/datacsv10.csv
-Demo/epi_data.plt
-Demo/workspace.code-workspace
-Works/_multiplot_four_day24Hour2.plt
-Works/FileName.FileExtension
-Works/work_experiment.plt
-Works/PowerShell_Bat/test_output.bat
+Demo/*
+Works/*

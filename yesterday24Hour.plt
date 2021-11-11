@@ -4,13 +4,12 @@
 
 reset 
 set encoding utf8
-
 pa_ = 120  ## значення паузи в оновленні графіку
 cycle = 1
 #do for [c_p = 0 : 10: 1]{
 
 
-local_time=time(0.0)+(2*3600) -(24*60*60)         ## місцевий час, час на Який показуємо графік для літнього часу множник 3, для зимового 2
+local_time=time(0.0)+(2*60*60) -(24*60*60)         ## місцевий час, час на Який показуємо графік для літнього часу множник 3, для зимового 2
 local_time_file=local_time-24*60*60              #для показу вчорашнього графіку
 # константа, що додає до UTC 2 чи 3 години, для вірного відображення дати файлу (2*3600), для літнього часу множник 3, для зимового 2 !!!
 unset term
@@ -54,7 +53,7 @@ set ytics auto
 set ytics add ("5" 5,"10" 10, "25" 25, "28" 28, "34" 34, "55" 55, "62" 62, "64" 64, "70" 70)
 set autoscale keepfix
 set ylabel "Градуси" 
-set yrange [0 : 100 ] noreverse nowriteback
+#set yrange [0 : 100 ] noreverse nowriteback
 #****************************************************************************
 set datafile sep ','
 set xlabel "Графік  ".strftime("%d.%m.%Y,%H:%M:%S",local_time)
@@ -111,7 +110,7 @@ plot local_full_name[i] using 1:4 ti "КотелПодача" ls 4,\
 '' using 1:4:5 w filledcurves  fc "orange" fs solid 0.5 border lc "red",\
 '' using 1:7:3 w filledcurves  fc "cyan" fs solid 0.5 border lc "blue", \
 '' using 1:($4-$5)+45:($7-$3)+44 w filledcurves  fc "yellow" fs solid 0.5 border lc "blue",\
-'' using 1:(($3-$8-20)):($8+5) w filledcurves  fc "light-blue" fs solid 0.5 border lc "blue",\
+'' using 1:($3-$8)-20:($8) w filledcurves  fc "light-blue" fs solid 0.5 border lc "blue",\
 '' using 1:((($4-$7))+20):(($5-$3)+20) w filledcurves  fc "green" fs solid 0.5 border lc "blue",\
 \
 '' using 1:($5) ti "КотелОбратка" ls 3,\
@@ -135,19 +134,19 @@ plot local_full_name[i] using 1:4 ti "КотелПодача" ls 4,\
 '' every 5:5 using 1:($7-$3)+44 ti "РізницяБудинок" ls 1,\
 '' every etvmn:etvmn using 1:($7-$3)+44:(LabelNameDiffD((substr(stringcolumn(7),1,4)),(substr(stringcolumn(3),1,4)))) w labels tc ls 6 center offset 0,-1,\
 \
-'' using 1:($6) ti "Приміщення" ls 3,\
+'' using 1:($6):xtic(substr(stringcolumn(2),0,5))  every etvmn ti "Приміщення" ls 3,\
 '' every etvmn:etvmn using 1:($6):(LabelNamePK(substr(stringcolumn(6),1,4))) w labels tc ls 2 center offset 0,1,\
 \
-'' using 1:($8+5):xtic(substr(stringcolumn(2),0,5))  every etvmn/10 ti "Вулиця" ls 7,\
-'' every etvmn:etvmn using 1:($8+4):(LabelNameWT(substr(stringcolumn(8),1,4))) w labels tc ls 4 ,\
+'' using 1:($8) ti "Вулиця" ls 7,\
+'' every etvmn:etvmn using 1:($8-1):(LabelNameWT(substr(stringcolumn(8),1,4))) w labels tc ls 5 ,\
 \
-'' every 5:5 using 1:(($3-$8-20)) ti "РізницяБО-Вулиця" ls 1,\
-'' every etvmn:etvmn using 1:(($3-$8-20)):(LabelNameDiffW((substr(stringcolumn(3),1,4)),(substr(stringcolumn(8),1,4)))) w labels tc ls 4 center offset 0,-1,\
+'' every 5:5 using 1:($3-$8)-20 ti "РізницяБО-Вулиця" ls 1,\
+'' every etvmn:etvmn using 1:($3-$8)-20:(LabelNameDiffW((substr(stringcolumn(3),1,4)),(substr(stringcolumn(8),1,4)))) w labels tc ls 4 center offset 0,-1,\
 \
    5 ls 8, 10 ls 8, 55 ls 8, 64 ls 8
    
    unset key
-   set ytics 0,100 
+   #set ytics 0,100 
    #set format y ""
 }
 unset multiplot
