@@ -70,18 +70,18 @@ LabelNameDiffKDO(String, String1) = sprintf("{%.1f} ", String - String1)
 LabelNameDiffW(String, String1) = sprintf("до-в {%.1f} ", String - String1)
 
 #******************** далі усе в секундах для розрахунку періодів графіка
-timeend =  local_time
-
-timestart = timeend-(4 * 3600)  ## показуємо 4 години
-dt = timeend-timestart         
-dt = dt/60                  
+timestart = local_time-(4 * 3600)  ## показуємо 4 години
+dt = local_time-timestart         
+dt = dt/48   
+# '14400/48  = 300 sec = 5 min це крок осі х
+# 'тому при dt = 300 sec вісь х розмічається з кроком у 5 хвилин '
+# 'таких міток, з кроком у 5 хвилин, 48 '
+# 'довідково: інтервал датчиків і файлу даних 30 секунд'                
+etvmn = dt/30 # вибираємо дані з кожного десятого рядка і ставимо числову мітку температури
+etvmn4 = dt/6 # вибираємо дані з кожного пятдесятого рядка, насправді тут заголовок на лінії даних
 #*************************************************************
-#timestart = strftime("%d.%m.%Y,%H:%M:%S",timestart)
-#timeend =  strftime("%d.%m.%Y,%H:%M:%S",timeend)
-etvmx = 20
-etvmn = 10
-set xrange [timestart:timeend]
-set xtics timestart, dt, timeend
+set xrange [timestart:local_time]
+set xtics timestart, dt, local_time    # інтервал точно 5 хвилин
 set format x "%H:%M"
 set xdata time
 set xtics rotate by -90
@@ -117,7 +117,7 @@ system(sprintf('touch -d  "%s" %s ', stat_data, local_full_name[i]))
 set multiplot layout 1,1 columnsfirst
 do for [i = cycle:1:-1]  {
 plot local_full_name[i] using 1:4 ti "КотелПодача" ls 4,\
-'' every etvmn*2:etvmn*2 using 1:4:(LabelNameKP_name(substr(stringcolumn(4),1,4))) w labels tc ls 1 center offset 0,2,\
+'' every etvmn4:etvmn4 using 1:4:(LabelNameKP_name(substr(stringcolumn(4),1,4))) w labels tc ls 1 center offset 0,2,\
 '' every etvmn:etvmn using 1:4:(LabelNameKP(substr(stringcolumn(4),1,4))) w labels tc ls 1 center offset 0,1,\
 \
 '' using 1:4:5 w filledcurves  fc "orange" fs solid 0.5 border lc "red",\
@@ -129,39 +129,39 @@ plot local_full_name[i] using 1:4 ti "КотелПодача" ls 4,\
 '' using 1:($5) ti "КотелОбратка" ls 3,\
 '' every etvmn:etvmn using 1:($5):(LabelNameKO(substr(stringcolumn(5),1,4))) w labels tc ls 3 center offset 0,-1,\
 \
-'' every 5:5 using 1:($4-$5)+45 ti "РізницяКотел" ls 2,\
-'' every etvmn*4:etvmn*4 using 1:($4-$5)+45:(LabelNameDiffK_name(substr(stringcolumn(4),1,4))) w labels tc ls 6 center offset 0,2,\
+'' using 1:($4-$5)+45 ti "РізницяКотел" ls 2,\
+'' every etvmn4:etvmn4 using 1:($4-$5)+45:(LabelNameDiffK_name(substr(stringcolumn(4),1,4))) w labels tc ls 6 center offset 0,2,\
 '' every etvmn:etvmn using 1:($4-$5)+45:(LabelNameDiffK((substr(stringcolumn(4),1,4)),(substr(stringcolumn(5),1,4)))) w labels tc ls 6 center offset 0,1,\
 \
-'' every 5:5 using 1:($4-$7)+20 ti "РізницяКотелДімПодача" ls 2,\
-'' every etvmn*4:etvmn*4 using 1:($4-$7)+20:(LabelNameDiffKDP_name(substr(stringcolumn(4),1,4))) w labels tc ls 6 center offset 0,2,\
+'' using 1:($4-$7)+20 ti "РізницяКотелДімПодача" ls 2,\
+'' every etvmn4:etvmn4 using 1:($4-$7)+20:(LabelNameDiffKDP_name(substr(stringcolumn(4),1,4))) w labels tc ls 6 center offset 0,2,\
 '' every etvmn:etvmn using 1:($4-$7)+20:(LabelNameDiffKDP((substr(stringcolumn(4),1,4)),(substr(stringcolumn(7),1,4)))) w labels tc ls 6 center offset 0,1,\
 \
-'' every 5:5 using 1:($5-$3)+20 ti "РізницяКотелДімОбр" ls 2,\
-'' every etvmn*4:etvmn*4 using 1:($5-$3)+20:(LabelNameDiffKDO_name(substr(stringcolumn(5),1,4))) w labels tc ls 6 center offset 0,-2,\
+'' using 1:($5-$3)+20 ti "РізницяКотелДімОбр" ls 2,\
+'' every etvmn4:etvmn4 using 1:($5-$3)+20:(LabelNameDiffKDO_name(substr(stringcolumn(5),1,4))) w labels tc ls 6 center offset 0,-2,\
 '' every etvmn:etvmn using 1:($5-$3)+20:(LabelNameDiffKDO((substr(stringcolumn(5),1,4)),(substr(stringcolumn(3),1,4)))) w labels tc ls 6 center offset 0,-1,\
 \
 '' using 1:($7) ti "ДімПодача " ls 4,\
-'' every etvmn*4:etvmn*4 using 1:($7):(LabelNameDP_name(substr(stringcolumn(7),1,4))) w labels tc ls 5 center offset 0,2,\
+'' every etvmn4:etvmn4 using 1:($7):(LabelNameDP_name(substr(stringcolumn(7),1,4))) w labels tc ls 5 center offset 0,2,\
 '' every etvmn:etvmn using 1:($7):(LabelNameDP(substr(stringcolumn(7),1,4))) w labels tc ls 5 center offset 0,1,\
 \
 '' using 1:($3) ti "ДімОбратка" ls 6,\
 '' every etvmn:etvmn using 1:($3):(LabelNameDO(substr(stringcolumn(3),1,4))) w labels tc ls 6 center offset 0,-1,\
 \
-'' every 5:5 using 1:($7-$3)+44 ti "РізницяБудинок" ls 1,\
-'' every etvmn*4:etvmn*4 using 1:($7-$3)+44:(LabelNameDiffD_name((substr(stringcolumn(7),1,4)))) w labels tc ls 6 center offset 0,-2,\
+'' using 1:($7-$3)+44 ti "РізницяБудинок" ls 1,\
+'' every etvmn4:etvmn4 using 1:($7-$3)+44:(LabelNameDiffD_name((substr(stringcolumn(7),1,4)))) w labels tc ls 6 center offset 0,-2,\
 '' every etvmn:etvmn using 1:($7-$3)+44:(LabelNameDiffD((substr(stringcolumn(7),1,4)),(substr(stringcolumn(3),1,4)))) w labels tc ls 6 center offset 0,-1,\
 \
 '' using 1:($6) ti "Приміщення" ls 3,\
-'' every etvmn*4:etvmn*4 using 1:($6):(LabelNamePK_name(substr(stringcolumn(6),1,4))) w labels tc ls 5 center offset 0,2,\
+'' every etvmn4:etvmn4 using 1:($6):(LabelNamePK_name(substr(stringcolumn(6),1,4))) w labels tc ls 5 center offset 0,2,\
 '' every etvmn:etvmn using 1:($6):(LabelNamePK(substr(stringcolumn(6),1,4))) w labels tc ls 5 center offset 0,1,\
 \
 '' using 1:($8) ti "Вулиця" ls 7,\
-'' every etvmn*4:etvmn*4 using 1:($8-1):(LabelNameWT_name(substr(stringcolumn(8),1,4))) w labels tc ls 5 center offset 0,-1,\
-'' every etvmn/2:etvmn/2 using 1:($8-1):(LabelNameWT(substr(stringcolumn(8),1,4))) w labels tc ls 5 center offset 0,0,\
+'' every etvmn4:etvmn4 using 1:($8-1):(LabelNameWT_name(substr(stringcolumn(8),1,4))) w labels tc ls 5 center offset 0,-1,\
+'' every etvmn/1.5:etvmn/1.5 using 1:($8-1):(LabelNameWT(substr(stringcolumn(8),1,4))) w labels tc ls 5 center offset 0,0,\
 \
-'' every 5:5 using 1:($3-$8)-20 ti "РізницяБО-Вулиця" ls 1,\
-'' every etvmn*4:etvmn*4 using 1:($3-$8)-20:(LabelNameDiffW((substr(stringcolumn(3),1,4)),(substr(stringcolumn(8),1,4)))) w labels tc ls 4 center offset 0,1,\
+'' using 1:($3-$8)-20 ti "РізницяБО-Вулиця" ls 1,\
+'' every etvmn4:etvmn4 using 1:($3-$8)-20:(LabelNameDiffW((substr(stringcolumn(3),1,4)),(substr(stringcolumn(8),1,4)))) w labels tc ls 4 center offset 0,1,\
 \
    5 ls 8, 10 ls 8, 55 ls 8, 64 ls 8
    
