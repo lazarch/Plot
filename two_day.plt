@@ -6,7 +6,7 @@ reset
 set encoding utf8
 
 pa_ = 120  ## значення паузи в оновленні графіку
-cycle = 4
+cycle = 2
 
 #місцевий час файлу зменшую на одну секунду для виключення випадків затримки запису у файл, коли у лог-файлі дата і час слідуючого дня
 local_time=time(0.0)+(2*3600)-1          ## місцевий час, час на Який показуємо графік для літнього часу множник 3, для зимового 2
@@ -14,7 +14,7 @@ local_time_file=local_time-24*60*60              #для показу вчора
 # константа, що додає до UTC 2 чи 3 години, для вірного відображення дати файлу (2*3600), для літнього часу множник 3, для зимового 2 !!!
 unset term
 set terminal win 1
-wtitle = strftime("Four day %d %m %Y %H:%M:%S",local_time)
+wtitle = strftime("Two day %d %m %Y %H:%M:%S",local_time)
 
 set term windows font "Times,8" title wtitle size 2200,800 enhanced
 set boxwidth 0.3 absolute
@@ -25,7 +25,7 @@ set grid layerdefault lt 0 linewidth 0.500,  lt 0 linewidth 0.500
 #місцезнаходження легенди графіку - вгорі зліва
 set key inside left top vertical  noreverse enhanced autotitle columnhead box lt black linewidth 1.000 dashtype solid maxrows 7
 set pointsize 2
-set title "four day"    #назва графіку
+set title "two day"    #назва графіку
 set style fill   solid 1.00 border lt -1
 set style data linespoints
 set style textbox opaque margins  1.0,  1.0 border
@@ -122,7 +122,7 @@ set xdata time
 set xrange [ timestart:timeend ]
 set x2range [ timestart:timeend ] noreverse nowriteback
 set xtics  norangelimit
-set xtics timestart, dt, timeend     # інтервал для four_day2, приблизно 26 хвилин о 21 годині для today24Hour
+set xtics timestart, int(dt*.37), timeend     # інтервал для four_day2, приблизно 26 хвилин о 21 годині для today24Hour
 set format x "%H\n%M" timedate
 set x2tics timestart, dt*2, timeend font ",8"
 set x2tics border in scale 1,0.5 nomirror norotate  autojustify

@@ -71,99 +71,133 @@ LabelNameDiffKDO(String, String1) = sprintf("{%.1f} ", String - String1)
 LabelNameDiffW(String, String1) = sprintf("до-в {%.1f} ", String - String1)
 
 #******************** далі усе в секундах для розрахунку періодів графіка
+timeend =  local_time
 local_time_seconds  = strftime("%d.%m.%Y,00:00:00",local_time-(cycle-1)*24*60*60)  ## секунд до початку доби
 timestart = strptime("%d.%m.%Y,%H:%M:%S", local_time_seconds)
-dt = local_time-timestart         
+dt = timeend-timestart         
+dt=floor(dt/48)*48   
 dt = dt/48   
+# '14400/24  = 600 sec =10 min це крок осі х коли вибірка інша
 # '14400/48  = 300 sec = 5 min це крок осі х коли вибірка 4 години
+# '14400/60  = 240 sec = 4 min це крок осі х коли вибірка інша
 # 'тому при dt = 300 sec вісь х розмічається з кроком у 5 хвилин '
 # 'таких міток, з кроком у 5 хвилин, 48 '
 # 'довідково: інтервал датчиків і файлу даних 30 секунд'                
 etvmn = dt/30 # вибираємо дані з кожного десятого рядка і ставимо числову мітку температури
 etvmn4 = dt/6 # вибираємо дані з кожного пятдесятого рядка, насправді тут заголовок на лінії даних
-#*************************************************************
-set xrange [timestart:local_time]
-set xtics timestart, dt, local_time  # інтервал приблизно 26 хвилин о 21 годині
-set format x "%H:%M"
-set xdata time
-set xtics rotate by -90
-set xtics  norangelimit 
 
-set ytics add ("5" 5,"10" 10, "25" 25, "28" 28, "34" 34, "55" 55, "62" 62, "64" 64, "70" 70)
-set ylabel "Градуси" 
-
-#set yrange [0 : 100 ] noreverse nowriteback
-# важливі всі пропуски (пробіли), особливо у list та sprintf
-#****************************************************************************
 set timefmt "%d.%m.%Y,%H:%M:%S"
 set datafile sep ','
 array local_name[cycle]
 array local_full_name[cycle]
+array Bmax_i[cycle]
+array Bmin_i[cycle]
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ 
+max_t = 21.0
+min_t = 20.0
 
 do for [i = 1:cycle:1]  {
-local_name[i] = strftime("%Y%m%d",local_time-(cycle-i)*24*60*60)	# name віддаленого файлу, також name локального файлу
-local_full_name[i] = 'd:\Libraries\Plot\Logs\'.local_name[i] .'.log '   #  повне name локального файлу
+local_name[i] = strftime("%Y%m%d",local_time-(cycle-i)*24*60*60) .'.log '	# name віддаленого файлу, також name локального файлу
+local_full_name[i] = 'd:\Libraries\Plot\Logs\'.local_name[i]   #  повне name локального файлу
 
 #дата модифікації  - супер!************************************************************
-curl_file = sprintf('curl --user F6:1953 ftp://192.168.1.13/' .local_name[i] .'.log -R -s -o ' .local_full_name[i])
+curl_file = sprintf('curl --user F6:1953 ftp://192.168.1.13/' .local_name[i] .' -R -s -o ' .local_full_name[i])
 system(curl_file)
 # запитали дату
 stat_data = system('stat -c %y ' .local_full_name[i])
 #pause mouse any "Any key or button will terminate " .stat_data
 system('sed -i /Err/d ' .local_full_name[i])
 system(sprintf('touch -d  "%s" %s ', stat_data, local_full_name[i]))
-
+#************************************************
+stats local_full_name[i] using 4:8 name columnheader
+Bmax_i[i] = STATS_max_x
+max_t = (STATS_max_x > max_t)?(STATS_max_x):(max_t)
+Bmin_i[i] = STATS_min_y
+min_t = (STATS_min_y < min_t)?(STATS_min_y):(min_t)
 }
+set yrange [min_t:max_t] noreverse nowriteback
+#*************************************************************
+set xdata time
+set xrange [ timestart:timeend ]
+set x2range [ timestart:timeend ] noreverse nowriteback
+set xtics  norangelimit
+set xtics timestart, dt, timeend font ",8"     # інтервал для four_day2, приблизно 26 хвилин о 21 годині для today24Hour
+set format x "%H\n%M" timedate
+set x2tics timestart, dt*2, timeend font ",8"
+set x2tics border in scale 1,0.5 nomirror norotate  autojustify
+set format x2 "%d/%m\n%R" timedate
+set cbtics  norangelimit autofreq 
+set mxtics  
+set xzeroaxis linetype 3 linewidth 4.5
+set x2zeroaxis linetype 1 linewidth 6.5 # тут якась дивна горизонтальна полоса на 40 градусах
+#set yzeroaxis linetype 3 linewidth 6.5
+unset ytics
+#fulltime(col) = strftime("%d %b %Y\n%H:%M:%.3S",column(col))
+#parttime(col) = strftime("%H:%M:%.3S",column(col))
+#----------------------------------------------------------------set yrange [-5:90] noreverse nowriteback
+#set link x2 
+set ytics add ("25" 25, "28" 28, "34" 34, "62" 62, "70" 70)
+set ylabel "Градуси від min_t до max_t" 
+TITLE = sprintf("Температура від    %3.3g",min_t) .sprintf("  до   %2.3g",max_t)
+set title TITLE tc rgbcolor "blue"  font "Times,18" offset char -140, char 0.5
+# важливі всі пропуски (пробіли), особливо у list та sprintf
+#****************************************************************************
 
 #****************************************************************************
 set multiplot layout 1,1 columnsfirst
 do for [i = cycle:1:-1]  {
+
+TITLEI = sprintf("Температура від    %3.3g",Bmin_i[i]) .sprintf("  до   %2.3g ",Bmax_i[i]).' ' .substr(local_name[i],7,8).'/' .substr(local_name[i],5,6)
+set xlabel TITLEI tc rgbcolor "blue"  font "Times,18" offset char 100*(i-1)-140, char -0.5
+#set label ’xlabel’
 plot local_full_name[i] using 1:4 ti "КотелПодача" ls 4,\
-'' every etvmn4:etvmn4 using 1:4:(LabelNameKP_name(substr(stringcolumn(4),1,4))) w labels tc ls 1 center offset 0,2,\
-'' every etvmn:etvmn using 1:4:(LabelNameKP(substr(stringcolumn(4),1,4))) w labels tc ls 1 center offset 0,1,\
+'' every etvmn4:etvmn4 using 1:4:(LabelNameKP_name(substr(stringcolumn(4),1,4))) w labels tc ls 1 center offset 0,2 ti '',\
+'' every etvmn:etvmn using 1:4:(LabelNameKP(substr(stringcolumn(4),1,4))) w labels tc ls 1 center offset 0,1 ti '',\
 \
-'' using 1:4:5 w filledcurves  fc "orange" fs solid 0.5 border lc "red",\
-'' using 1:7:3 w filledcurves  fc "cyan" fs solid 0.5 border lc "blue", \
-'' using 1:($4-$5)+45:($7-$3)+44 w filledcurves  fc "yellow" fs solid 0.5 border lc "blue",\
-'' using 1:($3-$8)-20:($8) w filledcurves  fc "light-blue" fs solid 0.5 border lc "blue",\
-'' using 1:((($4-$7))+20):(($5-$3)+20) w filledcurves  fc "green" fs solid 0.5 border lc "blue",\
+'' using 1:4:5 w filledcurves fc "orange" fs solid 0.5 border lc "red" ti '',\
+'' using 1:7:3 w filledcurves  fc "cyan" fs solid 0.5 border lc "blue" ti '', \
+'' using 1:($4-$5)+45:($7-$3)+44 w filledcurves  fc "yellow" fs solid 0.5 border lc "blue" ti '',\
+'' using 1:($3-$8)-20:($8) w filledcurves  fc "light-blue" fs solid 0.5 border lc "blue" ti '',\
+'' using 1:((($4-$7))+20):(($5-$3)+20) w filledcurves  fc "green" fs solid 0.5 border lc "blue" ti '',\
 \
 '' using 1:($5) ti "КотелОбратка" ls 3,\
-'' every etvmn:etvmn using 1:($5):(LabelNameKO(substr(stringcolumn(5),1,4))) w labels tc ls 3 center offset 0,-1,\
+'' every etvmn:etvmn using 1:($5):(LabelNameKO(substr(stringcolumn(5),1,4))) w labels tc ls 3 center offset 0,-1 ti '',\
 \
 '' using 1:($4-$5)+45 ti "РізницяКотел" ls 2,\
-'' every etvmn4:etvmn4 using 1:($4-$5)+45:(LabelNameDiffK_name(substr(stringcolumn(4),1,4))) w labels tc ls 6 center offset 0,2,\
-'' every etvmn:etvmn using 1:($4-$5)+45:(LabelNameDiffK((substr(stringcolumn(4),1,4)),(substr(stringcolumn(5),1,4)))) w labels tc ls 6 center offset 0,1,\
+'' every etvmn4:etvmn4 using 1:($4-$5)+45:(LabelNameDiffK_name(substr(stringcolumn(4),1,4))) w labels tc ls 6 center offset 0,2 ti '',\
+'' every etvmn:etvmn using 1:($4-$5)+45:(LabelNameDiffK((substr(stringcolumn(4),1,4)),(substr(stringcolumn(5),1,4)))) w labels tc ls 6 center offset 0,1 ti '',\
 \
 '' using 1:($4-$7)+20 ti "РізницяКотелДімПодача" ls 2,\
-'' every etvmn4:etvmn4 using 1:($4-$7)+20:(LabelNameDiffKDP_name(substr(stringcolumn(4),1,4))) w labels tc ls 6 center offset 0,2,\
-'' every etvmn:etvmn using 1:($4-$7)+20:(LabelNameDiffKDP((substr(stringcolumn(4),1,4)),(substr(stringcolumn(7),1,4)))) w labels tc ls 6 center offset 0,1,\
+'' every etvmn4:etvmn4 using 1:($4-$7)+20:(LabelNameDiffKDP_name(substr(stringcolumn(4),1,4))) w labels tc ls 6 center offset 0,2 ti '',\
+'' every etvmn:etvmn using 1:($4-$7)+20:(LabelNameDiffKDP((substr(stringcolumn(4),1,4)),(substr(stringcolumn(7),1,4)))) w labels tc ls 6 center offset 0,1 ti '',\
 \
 '' using 1:($5-$3)+20 ti "РізницяКотелДімОбр" ls 2,\
-'' every etvmn4:etvmn4 using 1:($5-$3)+20:(LabelNameDiffKDO_name(substr(stringcolumn(5),1,4))) w labels tc ls 6 center offset 0,-2,\
-'' every etvmn:etvmn using 1:($5-$3)+20:(LabelNameDiffKDO((substr(stringcolumn(5),1,4)),(substr(stringcolumn(3),1,4)))) w labels tc ls 6 center offset 0,-1,\
+'' every etvmn4:etvmn4 using 1:($5-$3)+20:(LabelNameDiffKDO_name(substr(stringcolumn(5),1,4))) w labels tc ls 6 center offset 0,-2 ti '',\
+'' every etvmn:etvmn using 1:($5-$3)+20:(LabelNameDiffKDO((substr(stringcolumn(5),1,4)),(substr(stringcolumn(3),1,4)))) w labels tc ls 6 center offset 0,-1 ti '',\
 \
 '' using 1:($7) ti "ДімПодача " ls 4,\
-'' every etvmn4:etvmn4 using 1:($7):(LabelNameDP_name(substr(stringcolumn(7),1,4))) w labels tc ls 5 center offset 0,2,\
-'' every etvmn:etvmn using 1:($7):(LabelNameDP(substr(stringcolumn(7),1,4))) w labels tc ls 5 center offset 0,1,\
+'' every etvmn4:etvmn4 using 1:($7):(LabelNameDP_name(substr(stringcolumn(7),1,4))) w labels tc ls 5 center offset 0,2 ti '',\
+'' every etvmn:etvmn using 1:($7):(LabelNameDP(substr(stringcolumn(7),1,4))) w labels tc ls 5 center offset 0,1 ti '',\
 \
 '' using 1:($3) ti "ДімОбратка" ls 6,\
-'' every etvmn:etvmn using 1:($3):(LabelNameDO(substr(stringcolumn(3),1,4))) w labels tc ls 6 center offset 0,-1,\
+'' every etvmn:etvmn using 1:($3):(LabelNameDO(substr(stringcolumn(3),1,4))) w labels tc ls 6 center offset 0,-1 ti '',\
 \
 '' using 1:($7-$3)+44 ti "РізницяБудинок" ls 1,\
-'' every etvmn4:etvmn4 using 1:($7-$3)+44:(LabelNameDiffD_name((substr(stringcolumn(7),1,4)))) w labels tc ls 6 center offset 0,-2,\
-'' every etvmn:etvmn using 1:($7-$3)+44:(LabelNameDiffD((substr(stringcolumn(7),1,4)),(substr(stringcolumn(3),1,4)))) w labels tc ls 6 center offset 0,-1,\
+'' every etvmn4:etvmn4 using 1:($7-$3)+44:(LabelNameDiffD_name((substr(stringcolumn(7),1,4)))) w labels tc ls 6 center offset 0,-2 ti '',\
+'' every etvmn:etvmn using 1:($7-$3)+44:(LabelNameDiffD((substr(stringcolumn(7),1,4)),(substr(stringcolumn(3),1,4)))) w labels tc ls 6 center offset 0,-1 ti '',\
 \
 '' using 1:($6) ti "Приміщення" ls 3,\
-'' every etvmn4:etvmn4 using 1:($6):(LabelNamePK_name(substr(stringcolumn(6),1,4))) w labels tc ls 5 center offset 0,2,\
-'' every etvmn:etvmn using 1:($6):(LabelNamePK(substr(stringcolumn(6),1,4))) w labels tc ls 5 center offset 0,1,\
+'' every etvmn4:etvmn4 using 1:($6):(LabelNamePK_name(substr(stringcolumn(6),1,4))) w labels tc ls 5 center offset 0,2 ti '',\
+'' every etvmn:etvmn using 1:($6):(LabelNamePK(substr(stringcolumn(6),1,4))) w labels tc ls 5 center offset 0,1 ti '',\
+'' every etvmn:etvmn using 1:($6):xtic(substr(stringcolumn(2),0,5)) ti '',\
 \
 '' using 1:($8) ti "Вулиця" ls 7,\
-'' every etvmn4:etvmn4 using 1:($8-1):(LabelNameWT_name(substr(stringcolumn(8),1,4))) w labels tc ls 5 center offset 0,-1,\
-'' every etvmn/1.5:etvmn/1.5 using 1:($8-1):(LabelNameWT(substr(stringcolumn(8),1,4))) w labels tc ls 5 center offset 0,0,\
+'' every etvmn4:etvmn4 using 1:($8-1):(LabelNameWT_name(substr(stringcolumn(8),1,4))) w labels tc ls 5 center offset 0,-1 ti '',\
+'' every etvmn/1.5:etvmn/1.5 using 1:($8-1):(LabelNameWT(substr(stringcolumn(8),1,4))) w labels tc ls 5 center offset 0,0 ti '',\
 \
 '' using 1:($3-$8)-20 ti "РізницяБО-Вулиця" ls 1,\
-'' every etvmn4:etvmn4 using 1:($3-$8)-20:(LabelNameDiffW((substr(stringcolumn(3),1,4)),(substr(stringcolumn(8),1,4)))) w labels tc ls 4 center offset 0,1,\
+'' every etvmn4:etvmn4 using 1:($3-$8)-20:(LabelNameDiffW((substr(stringcolumn(3),1,4)),(substr(stringcolumn(8),1,4)))) w labels tc ls 4 center offset 0,1 ti '',\
 \
    5 ls 8, 10 ls 8, 55 ls 8, 64 ls 8
    
